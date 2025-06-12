@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.200.0/http/server.ts";
 import { extname, join } from "https://deno.land/std@0.200.0/path/mod.ts";
 
 const PORT = 8000;
-const STATIC_DIR = "./public";
+const STATIC_DIR = "./";
 
 const mimeTypes: Record<string, string> = {
   ".html": "text/html",
