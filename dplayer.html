@@ -1,0 +1,50 @@
+﻿<!-- dplayer.html 内容 -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DPlayer容器</title>
+    <!-- 引入必要库 -->
+    <script src="https://cdn.jsdelivr.net/npm/dplayer/dist/DPlayer.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/flv.js@latest"></script> 
+</head>
+<body style="margin:0">
+    <div id="dplayer"></div>
+    <script>
+        // 解析URL参数 
+        const urlParams = new URLSearchParams(location.search); 
+        const videoUrl = urlParams.get('url'); 
+        const poster = urlParams.get('cover')  || 'default.jpg'; 
+ 
+        // 初始化DPlayer 
+        const dp = new DPlayer({
+            container: document.getElementById('dplayer'), 
+            video: {
+                url: videoUrl,
+                type: videoUrl.endsWith('.m3u8')  ? 'hls' : 'auto',
+                pic: poster,
+                thumbnails: videoUrl 
+            },
+            // 兼容性配置 
+            autoplay: true,
+            loop: true,
+            lang: 'zh-cn',
+            hotkey: true,
+            preload: 'auto',
+            volume: 0.7,
+            contextmenu: true,
+            apiBackend: 'https://api.example.com/danmaku' 
+        });
+ 
+        // 自动播放处理 
+        dp.on('play',  () => {
+            if(!dp.video.muted)  dp.video.muted  = true; // 静音处理 
+        });
+        // dplayer.html 接收消息 
+        window.addEventListener('message',  (e) => {
+            if(e.data.action  === 'pause') dp.pause(); 
+        });
+    </script>
+</body>
+</html>

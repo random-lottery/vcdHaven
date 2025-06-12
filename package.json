@@ -1,0 +1,16 @@
+{
+  "name": "videosite",
+  "version": "1.0.0",
+  "description": "COD system",
+  "main": "index.html",
+  "scripts": {
+    "test": "index.html",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

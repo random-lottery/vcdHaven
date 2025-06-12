@@ -1,0 +1,75 @@
+[
+  {
+    "videoname": "hello",
+    "videointro": "a good start",
+    "videopicture": "video.jpg",
+    "videocount": 40,
+    "videolist": [
+      {
+        "url": "",
+        "title": "",
+        "id": ""
+      },
+      {
+        "url": "http://www.baidu.com",
+        "title": "BAIDU",
+        "id": "5"
+      },
+      {
+        "url": "http://sov.qianpailive.com/b582/20250602/a6049e28c515a0c367f9a92d6665d295?auth_key=1749105623-10-0-6910cce051edd0654ed07284b3f59718&a=ylu7kvm4yc47&t=1749102023756127916&u=j1gxu7I7rQyjdrWDk5ttI6i4T86uW1rJiRaH68O6&vid=GjNAJ9KGV1Mw",
+        "title": "视频",
+        "id": 6
+      },
+      {
+        "url": "http://mpv.videocc.net/3ce7283c74/4/3ce7283c7402ac117f94f94b58b62894_3.mp4",
+        "title": "shuaiqi",
+        "id": "7"
+      }
+    ]
+  },
+  {
+    "videoname": "hello",
+    "videointro": "a good start",
+    "videopicture": "video.jpg",
+    "videocount": 40,
+    "videolist": [
+      {
+        "id": 1,
+        "title": "Video 1",
+        "url": "video1.mp4"
+      },
+      {
+        "id": 2,
+        "title": "Video 2",
+        "url": "video2.mp4"
+      }
+    ]
+  },
+  {
+    "videoname": "new",
+    "videointro": "good",
+    "videopicture": "httpurl",
+    "videocount": 1,
+    "videolist": [
+      {
+        "id": 1,
+        "title": "Video 1",
+        "url": "video1.mp4"
+      }
+    ]
+  },
+  {
+    "videoname": "aaaaaaaaaaa",
+    "videointro": "bbbbbbbbbbbbbbbb",
+    "videopicture": "",
+    "videocount": 0,
+    "videolist": []
+  },
+  {
+    "videoname": "采集",
+    "videointro": "",
+    "videopicture": "https://p0.ssl.img.360kuai.com/dmfd/158_88_75/t11508c75c89a22b632320f08bd.webp?size=646x372",
+    "videocount": 0,
+    "videolist": []
+  }
+]

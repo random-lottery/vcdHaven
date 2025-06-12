@@ -1,0 +1,49 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+h1 {
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    color: #fff;
+}
+
+#videoPlayer {
+    display: block;
+    margin: 20px auto;
+    border: 1px solid #ccc;
+}
+
+#videoList {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+#videoList h2 {
+    margin-top: 0;
+}
+
+#videoList ul {
+    list-style: none;
+    padding: 0;
+}
+
+#videoList li {
+    margin-bottom: 10px;
+}
+
+#videoList a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+#videoList a:hover {
+    text-decoration: underline;
+}

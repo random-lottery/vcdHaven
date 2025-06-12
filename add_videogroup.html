@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Video Group</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Add Video Group</h1>
+
+    <h2>Existing Video Groups</h2>
+    <div id="existingVideoGroups">
+        <!-- Existing video groups will be dynamically added here -->
+    </div>
+
+    <h2>Select Videos for New Group</h2>
+    <form id="selectVideosForm">
+        <!-- Videos will be dynamically added here -->
+    </form>
+
+    <h2>New Video Group Details</h2>
+    <form id="newVideoGroupForm">
+        <label for="videoname">Video Group Name:</label>
+        <input type="text" id="videoname" name="videoname"><br><br>
+
+        <label for="videointro">Video Group Intro:</label>
+        <textarea id="videointro" name="videointro" rows="4" cols="50"></textarea><br><br>
+
+        <label for="videopicture">Video Group Picture:</label>
+        <input type="text" id="videopicture" name="videopicture"><br><br>
+    </form>
+
+    <button type="button" onclick="submitSelectedVideos()">Create Video Group</button>
+
+    <script src="add_videogroup.js"></script>
+</body>
+</html>

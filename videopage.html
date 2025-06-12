@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>Video Page</title>
+<style>
+  body {
+    display: flex;
+    flex-direction: row;
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  /* Sidebar for snapshots */
+  #snapshot-list {
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    margin-right: 20px;
+  }
+  #snapshot-list img {
+    width: 140px;
+    height: 80px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    transition: border 0.2s;
+  }
+  #snapshot-list img.selected {
+    border-color: #007bff;
+  }
+  /* Main content area */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Video intro text */
+  #video-intro {
+    align-self: flex-start;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  /* Video iframe container */
+  #video-player {
+    width: 100%;
+    height: 450px;
+}
+</style>
+</head>
+<body>
+
+<div id="snapshot-list">
+  <!-- Snapshot images will be injected here -->
+</div>
+
+<div id="main">
+  <div id="video-intro"></div>
+  <iframe id="video-player" src="" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<script>
+  // Example data, replace or fetch dynamically as needed
+  let videoGroups;
+  fetch('http://192.168.90.41:3000/videos.json')
+        .then(response => response.json())
+        .then(data => {
+            videoGroups = data;
+            init();
+        });
+
+  // Simulate receiving active video id (from server or previous page)
+  // Replace with actual incoming data
+  let activeVideoId = "7"; // Example: set to id "6", or null if none
+
+  // Placeholder for current active video index
+  let currentVideo = null;
+
+  // Function to find video group containing given video id
+  function findVideoById(videogroups, id) {
+    for (const group of videogroups) {
+      for (const v of group.videolist) {
+        if (v.id.toString() === id.toString()) {
+          return v;
+        }
+      }
+    }
+    return null;
+  }
+
+  // Initialize the page
+  function init() {
+    const snapshotContainer = document.getElementById("snapshot-list");
+    const videoIntroDiv = document.getElementById("video-intro");
+    const iframePlayer = document.getElementById("video-player");
+
+    // For this example, pick the first group's videolist
+    // In real case, determine current group as appropriate
+    const currentGroup = videoGroups[0]; // or decide based on context
+
+    // Clear previous snapshots
+    snapshotContainer.innerHTML = "";
+
+    // Populate snapshots
+    currentGroup.videolist.forEach((video, index) => {
+      // Create img element for snapshot
+      const img = document.createElement("img");
+      
+      // Determine snapshot image source
+      // For videos with snapshot "data:image/png;base64,...", treat as base64 image
+      let snapshotSrc = "";
+      if (video.snapshot) {
+        snapshotSrc = video.snapshot;
+      } else {
+        // Placeholder image if no snapshot
+        snapshotSrc = "https://via.placeholder.com/140x80?text=No+Image";
+      }
+
+      img.src = snapshotSrc;
+      img.alt = video.title;
+      
+      // Set a data attribute for video id
+      const vidId = video.id.toString();
+      img.setAttribute("data-id", vidId);
+
+      // Add click event to change active video
+      img.addEventListener("click", () => {
+        setActiveVideo(vidId);
+      });
+
+      // Highlight if this is the initial active video
+      if (vidId === activeVideoId) {
+        img.classList.add("selected");
+        loadVideo(video);
+      }
+
+      snapshotContainer.appendChild(img);
+    });
+
+    // If no matching activeVideoId, default to first video
+    if (!activeVideoId && currentGroup.videolist.length > 0) {
+      setActiveVideo(currentGroup.videolist[0].id.toString());
+    }
+  }
+
+  // Function to set active video
+  function setActiveVideo(vidId) {
+    // Update activeVideoId
+    activeVideoId = vidId;
+
+    const imgs = document.querySelectorAll("#snapshot-list img");
+    
+    imgs.forEach(img => {
+      if (img.getAttribute("data-id") === vidId) {
+        img.classList.add("selected");
+      } else {
+        img.classList.remove("selected");
+      }
+    });
+
+    // Find video details
+    const currentVideo = findVideoById(videoGroups, vidId);
+    if (currentVideo) {
+      loadVideo(currentVideo);
+    }
+  }
+
+  // Function to load video into iframe and show intro
+  function loadVideo(video) {
+    const iframe = document.getElementById("video-player");
+    const introDiv = document.getElementById("video-intro");
+    // Update video intro text
+    introDiv.textContent = video.hasOwnProperty("summary") ? video.summary : "";
+    // Set iframe src to video url
+    iframe.src = video.url || "";
+  }
+
+  // Initialize on page load
+  //window.onload = init;
+</script>
+
+</body>
+</html>

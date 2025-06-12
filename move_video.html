@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Move Video</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            display: flex;
+        }
+        .video-group {
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Move Video</h1>
+    <div class="container">
+        <div class="video-group" id="sourceVideoGroup">
+            <h2>Source Video Group</h2>
+            <select id="sourceGroupSelect">
+                <!-- Options will be dynamically added here -->
+            </select>
+            <ul id="sourceVideoList">
+                <!-- Videos will be dynamically added here -->
+            </ul>
+        </div>
+        <div class="video-group" id="destinationVideoGroup">
+            <h2>Destination Video Group</h2>
+             <select id="destGroupSelect">
+                <!-- Options will be dynamically added here -->
+            </select>
+            <ul id="destVideoList">
+                <!-- Videos will be dynamically added here -->
+            </ul>
+        </div>
+    </div>
+    <button onclick="moveSelectedVideos()">Move Selected Videos</button>
+    <script src="move_video.js"></script>
+</body>
+</html>
