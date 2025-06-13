@@ -69,7 +69,7 @@ async function handleWebSocket(req: Request): Promise<Response> {
 
 async function handleAPIRequest(req: Request): Promise<Response> {
   try {
-    const worker = await import('./api_proxy/worker.mjs');
+    const worker = await import('./worker.mjs');
     return await worker.default.fetch(req);
   } catch (error) {
     console.error('API request error:', error);
