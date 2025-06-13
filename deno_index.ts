@@ -107,7 +107,7 @@ async function handleRequest(req: Request): Promise<Response> {
       filePath = '/index.html';
     }
 
-    const fullPath = `${Deno.cwd()}/static${filePath}`;
+    const fullPath = `${Deno.cwd()}${filePath}`;
 
     const file = await Deno.readFile(fullPath);
     const contentType = getContentType(filePath);
