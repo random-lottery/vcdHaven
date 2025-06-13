@@ -97,7 +97,7 @@ async function handleRequest(req: Request): Promise<Response> {
       url.pathname.endsWith("/embeddings") ||
       url.pathname.endsWith("/models")) {
     //const app = await import('./appworker.mjs');
-    return app.handleAPIRequest(req);
+    return handleAPIRequest(req);
   }
 
   // 静态文件处理
