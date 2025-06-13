@@ -96,8 +96,8 @@ async function handleRequest(req: Request): Promise<Response> {
   if (url.pathname.endsWith("/chat/completions") ||
       url.pathname.endsWith("/embeddings") ||
       url.pathname.endsWith("/models")) {
-    const app = await import('./appworker.mjs');
-    return app.handleAPIRequest(req);
+    //const app = await import('./appworker.mjs');
+    //return app.handleAPIRequest(req);
   }
 
   // 静态文件处理
