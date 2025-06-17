@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML5轮播图</title>
     <style>
+        #nav {
+            margin: 0px auto;
+            height: 60px;
+            background-color: #690;
+        }              
+        #nav ul {
+             list-style-type: none;
+             margin_left: 50px;
+        }
+        #nav .hidden {
+             display: none;
+        }
+        #nav li {
+             margin: auto 10px;
+             display: inline;
+             float: left;
+        }  
+    </style>
+    
+    <style>
         /* 容器样式 */
         .carousel-container {
             width: 100%;
@@ -192,7 +212,9 @@
 </style>
 </head>
 <body>
-    <a href="videopage.html">Play Videos</a> | <a href="management.html">Manage Videos</a> | <a href="add_videogroup.html">Add Video Group</a> | <a href="move_video.html">Move Video</a> | <a href="storage_manager.html">Storage Manager</a>
+    <ul id="nav">
+    <li><a href="videopage.html">Play Videos</a></li>|<li><a href="management.html">Manage Videos</a></li>|<li><a href="add_videogroup.html">Add Video Group</a></li></li>|<li><a href="move_video.html">Move Video</a></li>|<li><a href="storage_manager.html">Storage Manager</a></li>
+    </ul>
     <div class="carousel-container">
         <ul class="carousel">
             <li style="background-image: url('https://img999.51weizhang.cn/upload/vod/20250301-1/b801805b5c11fc204d6e4effdc4fbadd.jpg')"></li>
