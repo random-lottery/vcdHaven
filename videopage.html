@@ -64,7 +64,7 @@
 <script>
   // Example data, replace or fetch dynamically as needed
   let videoGroups;
-  fetch('http://192.168.90.41:3000/videos.json')
+  fetch('/videos.json')
         .then(response => response.json())
         .then(data => {
             videoGroups = data;
