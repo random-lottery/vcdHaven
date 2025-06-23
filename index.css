@@ -1,23 +1,6 @@
-        .body {  background: linear-gradient(to right, red, blue); /* 线性渐变 */}
-        body {  background: radial-gradient(circle, red, yellow, green); /* 径向渐变 */}
-        #nav {
-            margin: 0px auto;
-            height: auto; 40px;
-            background-color: #909090;
-        }              
-        #nav ul {
-             list-style-type: none;
-             margin_left: 50px;
-        }
-        #nav .hidden {
-             display: none;
-        }
-        #nav li {
-             margin: auto 10px;
-             display: inline;
-             float: left;
-        }  
-
+        body {  background: linear-gradient(to right, red, blue); /* 线性渐变 */}
+        .body {  background: radial-gradient(circle, red, yellow, green); /* 径向渐变 */}
+  
         /* 容器样式 */
         .carousel-container {
             width: 100%;
@@ -182,7 +165,7 @@
 
    /* 父页面样式 */
    .dplayer-container {
-       width: 50vw; /* 屏幕宽度的一半 */
+       width: 48vw; /* 屏幕宽度的一半 */
        max-width: 50%; /* 防止移动端过窄 */
        position: relative;
        aspect-ratio: 16/9; /* 保持16:9比例 */
