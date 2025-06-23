@@ -10,6 +10,18 @@
     <ul id="nav">
     <li><a href="videopage.html">Play Videos</a></li><li><a href="management.html">Manage Videos</a></li><li><a href="add_videogroup.html">Add Video Group</a></li></li><li><a href="move_video.html">Move Video</a></li><li><a href="storage_manager.html">Storage Manager</a></li>
     </ul>
+    
+    <div class="dplayer-container">
+        <iframe 
+          src="dplayer.html?url=https://v3.tlkqc.com/wjv3/202501/14/jscdKUjChr75/video/index.m3u8&cover=https://p0.ssl.qhimgs1.com/sdr/400__/t04c5e2979b9a979d94.jpg" 
+          width="100%" 
+          height="500px" 
+          frameborder="0" 
+          allow="autoplay; encrypted-media"
+          allowfullscreen 
+        ></iframe>
+    </div>
+
     <div class="carousel-container">
         <ul class="carousel">
             <li style="background-image: url('https://img999.51weizhang.cn/upload/vod/20250301-1/b801805b5c11fc204d6e4effdc4fbadd.jpg')"></li>
@@ -21,17 +33,6 @@
         <button class="carousel-btn next">></button>
         
         <div class="indicator"></div>
-    </div>
-
-    <div class="dplayer-container">
-        <iframe 
-          src="dplayer.html?url=https://v3.tlkqc.com/wjv3/202501/14/jscdKUjChr75/video/index.m3u8&cover=https://p0.ssl.qhimgs1.com/sdr/400__/t04c5e2979b9a979d94.jpg" 
-          width="100%" 
-          height="500px" 
-          frameborder="0" 
-          allow="autoplay; encrypted-media"
-          allowfullscreen 
-        ></iframe>
     </div>
 
      <!-- 在原有轮播容器下方添加 -->
@@ -61,142 +62,8 @@
              <div class="thumb-item" data-index="5">
                 <img src="video-thumb8.jpg"  alt="视频8">
             </div>
-             <div class="thumb-item" data-index="6">
-                <img src="video.jpg"  alt="hello">
-            </div>
-            <div class="thumb-item" data-index="7">
-                <img src="video1.mp4"  alt="Video 1">
-            </div>
-            <div class="thumb-item" data-index="8">
-                <img src="video2.mp4"  alt="Video 2">
-            </div>
         </div>
     </div>
- 
-    <script>
-        const carousel = document.querySelector('.carousel');
-        const items = document.querySelectorAll('.carousel  li');
-        const indicators = document.querySelector('.indicator');
-        const thumbItems = document.querySelectorAll('.thumb-item');
-        const prevBtn = document.querySelector('.prev');
-        const nextBtn = document.querySelector('.next');
-        const iframe = document.querySelector('iframe');
-        iframe.style.height = window.innerHeight * 0.7 + 'px';
-        let currentIndex = 0;
-        let interval;
-        let videos = [];
-
-        fetch('videos.json')
-            .then(response => response.json())
-            .then(data => {
-                videos = data;
-                createThumbnails();
-            });
-
-        function createThumbnails() {
-            const thumbnailsContainer = document.querySelector('.thumbnails');
-            thumbnailsContainer.innerHTML = ''; // Clear existing thumbnails
-
-            videos.forEach((video, index) => {
-                const thumbItem = document.createElement('div');
-                thumbItem.classList.add('thumb-item');
-                thumbItem.dataset.index = index;
-
-                const img = document.createElement('img');
-                img.src = video.videopicture;
-                img.alt = video.videoname;
-
-                thumbItem.appendChild(img);
-                thumbnailsContainer.appendChild(thumbItem);
-
-                thumbItem.addEventListener('click', () => {
-                    const groupIndex = parseInt(thumbItem.dataset.index);
-                    if (videos[groupIndex] && videos[groupIndex].videolist && videos[groupIndex].videolist.length > 0) {
-                        const videoUrl = videos[groupIndex].videolist[0].url;
-                        document.querySelector('iframe').src = `dplayer.html?url=${videoUrl}&cover=${videos.videopicture}`;
-                    }
-                });
-            });
-        }
-        // 初始化指示点
-        items.forEach((item, index) => {
-            const dot = document.createElement('span');
-            dot.addEventListener('click', () => changeSlide(index));
-            indicators.appendChild(dot);
-        });
- 
-        // 自动播放 
-        function startAutoPlay() {
-            interval = setInterval(() => {
-                currentIndex = (currentIndex + 1) % items.length; 
-                updateSlide();
-            }, 3000);
-        }
- 
-        // 缩略图点击事件 
-        thumbItems.forEach(thumb  => {
-            thumb.addEventListener('click',  () => {
-                const index = parseInt(thumb.dataset.index); 
-                currentIndex = index;
-                updateSlide();
-                updateThumbnails();
-            });
-        });
- 
-        // 更新缩略图状态 
-        function updateThumbnails() {
-            thumbItems.forEach((thumb,  index) => {
-                thumb.classList.toggle('active',  index === currentIndex);
-                // 自动滚动到可视区域 
-                if(index === currentIndex) {
-                    thumb.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'nearest',
-                        inline: 'center'
-                    });
-                }
-            });
-        }
- 
-        // 更新当前显示的幻灯片 
-        function updateSlide() {
-            carousel.style.transform  = `translateX(-${currentIndex * 100}%)`;
-            updateIndicator();
-        // 在原有 updateSlide 函数末尾添加 
-        updateThumbnails();
-        }
- 
-        // 更新指示点状态 
-        function updateIndicator() {
-            indicators.querySelectorAll('span').forEach((dot,  index) => {
-                dot.classList.toggle('active',  index === currentIndex);
-            });
-        }
- 
-        // 切换幻灯片 
-        function changeSlide(index) {
-            currentIndex = index;
-            updateSlide();
-        }
- 
-        // 暂停/恢复 
-        document.querySelector('.carousel-container').addEventListener('mouseenter',  () => clearInterval(interval));
-        document.querySelector('.carousel-container').addEventListener('mouseleave',  startAutoPlay);
- 
-        // 按钮点击事件 
-        prevBtn.addEventListener('click',  () => {
-            currentIndex = (currentIndex - 1 + items.length)  % items.length; 
-            updateSlide();
-        });
- 
-        nextBtn.addEventListener('click',  () => {
-            currentIndex = (currentIndex + 1) % items.length; 
-            updateSlide();
-        });
- 
-        // 初始化 
-        startAutoPlay();
-        updateIndicator();
-    </script>
+<script src="index.js"></script>
 </body>
 </html>
