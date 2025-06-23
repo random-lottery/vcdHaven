@@ -1,5 +1,5 @@
         body {  background: linear-gradient(to right, red, blue); /* 线性渐变 */}
-        .body {  background: radial-gradient(circle, red, yellow, green); /* 径向渐变 */}
+        #body {  background: radial-gradient(circle, red, yellow, green); /* 径向渐变 */}
   
         /* 容器样式 */
         .carousel-container {
@@ -129,7 +129,7 @@
 
     /* 容器样式（关键修改部分） */
     .carousel-container {
-        width: 50vw; /* 屏幕宽度的一半 */
+        width: auto; /* 屏幕宽度的一半 */
         max-width: 50%; /* 防止移动端过窄 */
         margin: 20px auto;
         position: relative;
@@ -165,8 +165,8 @@
 
    /* 父页面样式 */
    .dplayer-container {
-       width: 48vw; /* 屏幕宽度的一半 */
-       max-width: 50%; /* 防止移动端过窄 */
+       width: auto; /* 屏幕宽度的一半 */
+       max-width: 20%; /* 防止移动端过窄 */
        position: relative;
        aspect-ratio: 16/9; /* 保持16:9比例 */
        margin: 20px 0;
