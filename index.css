@@ -3,7 +3,7 @@
   
         /* 容器样式 */
         .carousel-container {
-            width: auto;
+            width: 50vw;
             max-width: 1200px;
             margin: 20px auto;
             position: relative;
