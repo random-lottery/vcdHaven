@@ -117,7 +117,13 @@
             currentIndex = (currentIndex + 1) % items.length; 
             updateSlide();
         });
- 
+
+        // 移动端菜单切换功能
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
         // 初始化 
         startAutoPlay();
         updateIndicator();
