@@ -2,7 +2,7 @@
         body {  background: radial-gradient(circle, red, yellow, green); /* 径向渐变 */}
         #nav {
             margin: 0px auto;
-            height: 40px;
+            height: auto; 40px;
             background-color: #909090;
         }              
         #nav ul {
