@@ -1,0 +1,208 @@
+    <style>
+        .body {  background: linear-gradient(to right, red, blue); /* 线性渐变 */}
+        body {  background: radial-gradient(circle, red, yellow, green); /* 径向渐变 */}
+        #nav {
+            margin: 0px auto;
+            height: 40px;
+            background-color: #909090;
+        }              
+        #nav ul {
+             list-style-type: none;
+             margin_left: 50px;
+        }
+        #nav .hidden {
+             display: none;
+        }
+        #nav li {
+             margin: auto 10px;
+             display: inline;
+             float: left;
+        }  
+    </style>
+    
+    <style>
+        /* 容器样式 */
+        .carousel-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+ 
+        /* 图片列表样式 */
+        .carousel {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+ 
+        .carousel li {
+            min-width: 100%;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+        }
+ 
+        /* 控制按钮样式 */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            opacity: 0.8;
+        }
+ 
+        .prev { left: 10px; }
+        .next { right: 10px; }
+ 
+        /* 指示点样式 */
+        .indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+        }
+ 
+        .indicator span {
+            width: 12px;
+            height: 12px;
+            background-color: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+ 
+        .indicator span.active  {
+            background-color: #fff;
+        }
+    </style>
+
+    <style>
+    /* 新增CSS样式 */
+    .thumbnail-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        position: relative;
+    }
+ 
+    .thumbnails {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        padding: 10px 0;
+    }
+ 
+    .thumb-item {
+        flex: 0 0 160px;
+        height: 90px;
+        border-radius: 4px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+    }
+ 
+    .thumb-item::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        transition: background 0.3s;
+    }
+ 
+    .thumb-item.active::after  {
+        background: rgba(0,0,0,0);
+    }
+ 
+    .thumb-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+ 
+    .thumb-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+ 
+    /* 隐藏滚动条 */
+    .thumbnails::-webkit-scrollbar {
+        display: none;
+    }
+    </style>
+
+    <style>
+    /* 容器样式（关键修改部分） */
+    .carousel-container {
+        width: 50vw; /* 屏幕宽度的一半 */
+        max-width: 50%; /* 防止移动端过窄 */
+        margin: 20px auto;
+        position: relative;
+        float: right;
+        overflow: hidden;
+        border-radius: 8px;
+    }
+ 
+    /* 图片列表样式 */
+    .carousel {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+ 
+    .carousel li {
+        min-width: 100%;
+        height: 400px;
+        background-size: cover;
+        background-position: center;
+    }
+ 
+    /* 指示点样式 */
+    .indicator {
+        position: absolute;
+        bottom: 10px;
+        left: 50%; /* 保持容器水平居中 */
+        transform: translateX(-50%);
+        display: flex;
+    }
+    </style>
+
+    <style>
+   /* 父页面样式 */
+   .dplayer-container {
+       width: 50vw; /* 屏幕宽度的一半 */
+       max-width: 50%; /* 防止移动端过窄 */
+       position: relative;
+       aspect-ratio: 16/9; /* 保持16:9比例 */
+       margin: 20px 0;
+   }
+ 
+   /* iframe样式 */
+   .dplayer-container iframe {
+       width: 100%;
+       height: 100%;
+       border: none;
+       background: #000;
+   }
+    </style>
