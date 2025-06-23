@@ -9,10 +9,58 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="bg-white p-4 flex justify-center space-x-4">
-    <ul id="nav">
-    <li><a href="videopage.html">Play Videos</a></li><li><a href="management.html">Manage Videos</a></li><li><a href="add_videogroup.html">Add Video Group</a></li></li><li><a href="move_video.html">Move Video</a></li><li><a href="storage_manager.html">Storage Manager</a></li>
-    </ul>
+    <div class="bg-blue p-2 flex justify-center space-x-2">
+    <nav class="bg-gray-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-white font-bold text-xl">视频管理系统</span>
+                </div>
+                <div class="hidden md:flex md:items-center md:space-x-4">
+                    <a href="videopage.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-play-circle mr-2"></i>播放视频
+                    </a>
+                    <a href="management.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-th-list mr-2"></i>管理视频
+                    </a>
+                    <a href="add_videogroup.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-plus-circle mr-2"></i>添加视频组
+                    </a>
+                    <a href="move_video.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-arrows mr-2"></i>移动视频
+                    </a>
+                    <a href="storage_manager.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-hdd-o mr-2"></i>存储管理
+                    </a>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button type="button" class="text-gray-300 hover:text-white focus:outline-none" id="mobile-menu-button">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="hidden md:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="videopage.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-play-circle mr-2"></i>播放视频
+                </a>
+                <a href="management.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-th-list mr-2"></i>管理视频
+                </a>
+                <a href="add_videogroup.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-plus-circle mr-2"></i>添加视频组
+                </a>
+                <a href="move_video.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-arrows mr-2"></i>移动视频
+                </a>
+                <a href="storage_manager.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-hdd-o mr-2"></i>存储管理
+                </a>
+            </div>
+        </div>
+    </nav>
     </div>
     <div class="dplayer-container">
         <iframe 
