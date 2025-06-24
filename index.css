@@ -74,7 +74,8 @@
     /* 新增CSS样式 */
     .thumbnail-container {
         max-width: 1200px;
-        margin: 20px auto;
+        min-width: 800px;
+        margin: 10px auto;
         position: relative;
     }
  
