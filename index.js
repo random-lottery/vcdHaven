@@ -14,8 +14,27 @@
             .then(response => response.json())
             .then(data => {
                 videos = data;
+                createCarouselSlides();
                 createThumbnails();
             });
+
+        function createCarouselSlides() {
+            const carousel = document.querySelector('.carousel');
+            carousel.innerHTML = '';
+            videos.forEach(group => {
+                if (group.videolist && group.videolist.length > 0) {
+                    // Pick a random video from the group
+                    const randomIndex = Math.floor(Math.random() * group.videolist.length);
+                    const video = group.videolist[randomIndex];
+                    // Use group.videopicture as cover, fallback to placeholder
+                    const cover = group.videopicture && group.videopicture !== '' ? group.videopicture : 'https://via.placeholder.com/1200x400?text=No+Cover';
+                    const li = document.createElement('li');
+                    //li.className = 'min-w-full h-96 bg-cover bg-center';
+                    li.style.backgroundImage = `url('${cover}')`;
+                    carousel.appendChild(li);
+                }
+            });
+        }
 
         function createThumbnails() {
             const thumbnailsContainer = document.querySelector('.thumbnails');
@@ -23,6 +42,8 @@
 
             videos.forEach((video, index) => {
                 const thumbItem = document.createElement('div');
+                if (index === 0) thumbItem.classList.add('thumb-item','active')
+                else
                 thumbItem.classList.add('thumb-item');
                 thumbItem.dataset.index = index;
 
