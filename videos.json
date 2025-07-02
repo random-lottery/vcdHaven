@@ -2,13 +2,13 @@
   {
     "videoname": "hello",
     "videointro": "a good start",
-    "videopicture": "video.jpg",
+    "videopicture": "https://dimg04.c-ctrip.com/images/1mc6h12000jzcjfehECBA_R_600_400_R5_D.jpg",
     "videocount": 40,
     "videolist": [
       {
-        "url": "",
-        "title": "",
-        "id": ""
+        "url": "https://www.taobao.com",
+        "title": "hello kitty",
+        "id": "8"
       },
       {
         "url": "http://www.baidu.com",
@@ -30,7 +30,7 @@
   {
     "videoname": "hello",
     "videointro": "a good start",
-    "videopicture": "video.jpg",
+    "videopicture": "https://image.maigoo.com/upload/images/20220621/14315297177_500x312.jpg",
     "videocount": 40,
     "videolist": [
       {
@@ -48,7 +48,7 @@
   {
     "videoname": "new",
     "videointro": "good",
-    "videopicture": "httpurl",
+    "videopicture": "https://dimg04.c-ctrip.com/images/1mc0e12000cqnbv1w3481_W_1080_808_R5_D.jpg",
     "videocount": 1,
     "videolist": [
       {
@@ -61,7 +61,7 @@
   {
     "videoname": "aaaaaaaaaaa",
     "videointro": "bbbbbbbbbbbbbbbb",
-    "videopicture": "",
+    "videopicture": "https://dimg04.c-ctrip.com/images/1mc3p12000cqnqv5m3892_W_1080_808_R5_D.jpg",
     "videocount": 0,
     "videolist": []
   },
