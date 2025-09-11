@@ -1,4 +1,4 @@
-        body {  background: linear-gradient(to right, red, blue); /* 线性渐变 */}
+        #body {  background: linear-gradient(to right, red, blue); /* 线性渐变 */}
         #body {  background: radial-gradient(circle, red, yellow, green); /* 径向渐变 */}
   
         /* 容器样式 */
