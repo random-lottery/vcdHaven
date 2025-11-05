@@ -250,7 +250,7 @@ function drawClock(index, hours, minutes, seconds) {
   ctx.save();
   ctx.rotate(-Math.PI / 2);
   for (let i = 1; i <= 12; i++) {
-    const angle = (i - 1) * Math.PI / 6;
+    const angle = i * Math.PI / 6;
     ctx.save();
     ctx.rotate(angle);
     ctx.translate(radius - 30, 0);
@@ -295,7 +295,7 @@ function drawHand(ctx, angle, length, width, color) {
   ctx.lineWidth = width;
   ctx.strokeStyle = color;
   ctx.moveTo(0, 0);
-  ctx.rotate((angle * Math.PI / 180) - Math.PI / 2);
+  ctx.rotate(angle * Math.PI / 180 + 2 * Math.PI);
   ctx.lineTo(0, -length);
   ctx.lineCap = 'round';
   ctx.stroke();
