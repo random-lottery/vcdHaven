@@ -8,7 +8,8 @@
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <link rel="stylesheet" href="clock24.css">
   <script src="https://cdn.bootcdn.net/ajax/libs/lunar-javascript/1.6.13/lunar.js"></script>
-  
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
   <!-- Tailwind 配置 -->
   <script>
     tailwind.config = {
@@ -439,8 +440,8 @@
       currentWeekdayEl.textContent = weekday;
       
       // 农历 (简化版，实际应用中可能需要更复杂的计库算)
-      currentLunarEl.textContent = getLunarDate(now())? getLunarDate() : `农历: 暂未实现`;
-      
+      currentLunarEl.textContent = getLunarDateSimple(new Date())? getLunarDateSimple(new Date()) : `农历: 暂未实现`;
+
       // 节气
       const todayStr = now.toISOString().split('T')[0];
       const currentTerm = solarTerms.find(term => term.date === todayStr);
