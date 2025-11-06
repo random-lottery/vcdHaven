@@ -470,3 +470,67 @@ body {
 .ml-auto {
   margin-left: auto;
 }
+
+/* Huangli (Lunar Almanac) section styles */
+.today_good, .today_bad {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+
+.yi-img, .ji-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  margin-right: 6px;
+  flex: 0 0 auto;
+}
+
+.yi-img { background-color: #10B981; }
+.ji-img { background-color: #EF4444; }
+
+.today_good ul, .today_bad ul {
+  list-style: none;
+  margin: 0 6px;
+  padding: 0;
+}
+
+.today_good li, .today_bad li {
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  padding: 2px 8px;
+  margin: 2px 0;
+  white-space: nowrap;
+}
+
+/* Control column visibility defaults; `yi-two`/`yi-three` may be toggled by JS */
+.yi-two, .yi-three, .ji-two { display: block; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .today_good, .today_bad {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .today_good ul, .today_bad ul {
+    margin: 0 4px;
+  }
+  .today_good li, .today_bad li {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+}

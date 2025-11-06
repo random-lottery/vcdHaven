@@ -435,6 +435,96 @@ function getAndSetLunarData(date) {
         temp = data.data.tgdz.split(",");
         currentLunarEl.innerHTML = temp[0].substring(0, 2) + temp[1] + "&nbsp;" + data.data.nongli 
          + "&nbsp;" + temp[2] + "&nbsp;" + temp[3];
+        
+        /*黄历宜忌*/
+        var yi = data.data.yi;
+        var ji = data.data.ji;
+        var y_desc_one = "";
+        var y_desc_two = "";
+        var y_desc_three = "";
+        var j_desc_one = "";
+        var j_desc_two = "";
+        if (yi.length > 4) {
+          for (var i = 0; i < 4; i++) {
+            y_desc_one += "<li>" + yi[i].old + "</li>";
+          }
+          if (yi.length > 4 && yi.length < 8) {
+            for (var j = 4; j < yi.length; j++) {
+              y_desc_two += "<li>" + yi[j].old + "</li>";
+            }
+            $(".yi-three").css({
+              display: 'none'
+            })
+          }
+          if (yi.length == 8) {
+            for (var j = 4; j < 8; j++) {
+              y_desc_two += "<li>" + yi[j].old + "</li>";
+            }
+            $(".yi-three").css({
+              display: 'none'
+            })
+          }
+          if (yi.length > 8) {
+            $(".yi-two").css({
+              display: 'block'
+            })
+            if (yi.length > 12) {
+              yi = yi.slice(0, 10);
+            }
+            for (var j = 4; j < 8; j++) {
+              y_desc_two += "<li>" + yi[j].old + "</li>";
+            }
+            for (var o = 8; o < yi.length; o++) {
+              y_desc_three += "<li>" + yi[o].old + "</li>";
+            }
+            $(".yi-three").css({
+              display: 'block'
+            })
+          }
+        } else {
+          for (var i = 0; i < yi.length; i++) {
+            if (yi[i].old) {
+              y_desc_one += "<li>" + yi[i].old + "</li>";
+            } else {
+              y_desc_one += "<li>无</li>";
+            }
+          }
+          $(".yi-three").css({
+            display: 'none'
+          })
+          $(".yi-two").css({
+            display: 'none'
+          })
+        }
+        if (ji.length > 4) {
+          for (var l = 0; l < 4; l++) {
+            j_desc_one += "<li>" + ji[l].old + "</li>";
+          }
+          for (var k = 4; k < ji.length; k++) {
+            j_desc_two += "<li>" + ji[k].old + "</li>";
+          }
+          $(".today_bad ul").css({
+            float: 'right',
+            margin: '0 2px'
+          })
+        } else {
+          for (var i = 0; i < ji.length; i++) {
+            if (ji[i].old) {
+              j_desc_one += "<li>" + ji[i].old + "</li>";
+            } else {
+              j_desc_one += "<li>无</li>";
+            }
+          }
+          $(".today_bad ul").css({
+            float: 'none',
+            margin: '0 auto'
+          })
+        }
+        $(".yi-one").html(y_desc_one);
+        $(".yi-two").html(y_desc_two);
+        $(".yi-three").html(y_desc_three);
+        $(".ji-one").html(j_desc_one);
+        $(".ji-two").html(j_desc_two);
       }
     },
     error: function () {
