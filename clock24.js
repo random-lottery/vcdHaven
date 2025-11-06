@@ -433,8 +433,8 @@ function getAndSetLunarData(date) {
         var temp = data.data.date.split("-");
         //currentLunarEl.textContent = temp[temp.length - 1];
         temp = data.data.tgdz.split(",");
-        currentLunarEl.innerHTML = temp[0].substring(0, 2) + temp[1] + "&nbsp;" + data.data.nongli;
-        //currentLunarEl.textContent = temp[2] + "&nbsp;" + temp[3];
+        currentLunarEl.innerHTML = temp[0].substring(0, 2) + temp[1] + "&nbsp;" + data.data.nongli 
+         + "&nbsp;" + temp[2] + "&nbsp;" + temp[3];
       }
     },
     error: function () {
