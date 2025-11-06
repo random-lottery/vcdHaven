@@ -402,6 +402,43 @@ function getLunarDateSimple(date) {
   return `农历: 乙巳年（请使用完整转换库）`;
 }
 
+function getFormatInt(intnumber) {
+  var now_number = intnumber < 10 ? '0' + intnumber : intnumber.toString();
+  return now_number;
+}
+
+function getAndSetLunarData(date) {
+  const s_year = date.getFullYear();
+  const s_month = date.getMonth() + 1;
+  const s_date = date.getDate();
+  var now_month = s_month < 10 ? '0' + s_month : s_month.toString();
+  var now_day = s_date < 10 ? '0' + s_date : s_date.toString();
+  var now_date = s_year.toString() + now_month + now_day;
+  if (window.calendar && !is_first) {
+    window.calendar.updateDate(now_date);
+  }
+  $.ajax({
+    type: "GET",
+    url: "https://v2-zhwnlapi.etouch.cn/Ecalender/openapi/huangli/" + s_year + "-" + getFormatInt(
+      s_month) +
+      "-" + getFormatInt(s_date) + "?key=0Uix9250MloRwgdk07IpvxU83gv09IXh&jsonpCall=call",
+    dataType: "jsonp",
+    jsonpCallback: "call",
+    success: function (data) {
+        currentLunarEl.textContent = data.data.date.slice(8);
+      if (data.status == 1000) {
+        var temp = data.data.date.split("-");
+        //currentLunarEl.textContent = temp[temp.length - 1];
+        temp = data.data.tgdz.split(",");
+        currentLunarEl.innerHTML = temp[0].substring(0, 2) + temp[1] + "&nbsp;" + data.data.nongli;
+        //currentLunarEl.textContent = temp[2] + "&nbsp;" + temp[3];
+      }
+    },
+    error: function () {
+      currentLunarEl.textContent = '获取农历数据失败';
+    }
+  });
+}
 // 更新日期信息
 function updateDateInfo() {
   const now = new Date();
@@ -416,7 +453,8 @@ function updateDateInfo() {
   currentWeekdayEl.textContent = weekday;
   
   // 农历计算
-  currentLunarEl.textContent = getLunarDate(now);
+  //currentLunarEl.textContent = getLunarDate(now);
+  getAndSetLunarData(now);
   
   // 节气
   const todayStr = now.toISOString().split('T')[0];
