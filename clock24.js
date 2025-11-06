@@ -78,7 +78,7 @@ const currentLunarEl = document.getElementById('currentLunar');
 const solarTermsEl = document.getElementById('solarTerms');
 const holidayInfoEl = document.getElementById('holidayInfo');
 const countdownEl = document.getElementById('countdown');
-
+let oday = Date().split(' ')[2];
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
   renderClocks();
@@ -89,7 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // 每秒更新一次时间
   setInterval(() => {
     updateAllClocks();
-    updateDateInfo();
+    if (Date().split(' ')[2] !== oday){
+      updateDateInfo();
+      oday = Date().split(' ')[2];
+    }
   }, 1000);
 });
 
