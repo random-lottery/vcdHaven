@@ -69,8 +69,10 @@ async function handleWebSocket(req: Request): Promise<Response> {
 
 async function handleAPIRequest(req: Request): Promise<Response> {
   try {
-    const worker = await import('./worker.mjs');
-    return await worker.default.fetch(req);
+    //const worker = await import('./worker.mjs');
+    const appworker = await import('./appworker.mjs');
+    //await worker.default.fetch(req);
+    return await appworker.default.fetch(req);
   } catch (error) {
     console.error('API request error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -95,8 +97,8 @@ async function handleRequest(req: Request): Promise<Response> {
 
   if (url.pathname.endsWith("/chat/completions") ||
       url.pathname.endsWith("/embeddings") ||
-      url.pathname.endsWith("/models")) {
-    const app = await import('./appworker.mjs');
+      url.pathname.endsWith("/models")) ||
+      url.pathname.endsWith("/videos")){
     return app.handleAPIRequest(req);
   }
 
@@ -129,3 +131,4 @@ async function handleRequest(req: Request): Promise<Response> {
 }
 
 Deno.serve(handleRequest); 
+
