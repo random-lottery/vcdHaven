@@ -69,8 +69,8 @@ async function handleWebSocket(req: Request): Promise<Response> {
 
 async function handleAPIRequest(req: Request): Promise<Response> {
   try {
-    const appworker = await import('./appworker.mjs');
-    return await appworker.default.fetch(req);
+    const appworker = await import('./worker.mjs');
+    return await worker.default.fetch(req);
   } catch (error) {
     console.error('API request error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -86,8 +86,8 @@ async function handleAPIRequest(req: Request): Promise<Response> {
 
 async function handleLocalRequest(req: Request): Promise<Response> {
   try {
-    const worker = await import('./worker.mjs');
-    return await worker.default.fetch(req);
+    const appworker = await import('./appworker.mjs');
+    return await appworker.default.fetch(req);
   } catch (error) {
     console.error('API request error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -114,7 +114,6 @@ async function handleRequest(req: Request): Promise<Response> {
       url.pathname.endsWith("/embeddings") ||
       url.pathname.endsWith("/models")) {
     return app.handleAPIRequest(req);  
-  
   }
   
   if (url.pathname.endsWith("/videos") ||
@@ -152,6 +151,7 @@ async function handleRequest(req: Request): Promise<Response> {
 }
 
 Deno.serve(handleRequest); 
+
 
 
 
