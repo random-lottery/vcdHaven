@@ -113,13 +113,13 @@ async function handleRequest(req: Request): Promise<Response> {
   if (url.pathname.endsWith("/chat/completions") ||
       url.pathname.endsWith("/embeddings") ||
       url.pathname.endsWith("/models")) {
-    return app.handleAPIRequest(req);  
+    return handleAPIRequest(req);  
   }
   
   if (url.pathname.endsWith("/videos") ||
       url.pathname.endsWith("/newvideogroup") ||
       url.pathname.endsWith("/movevideos")) {
-    return app.handleLocalRequest(req);
+    return handleLocalRequest(req);
   }
 
   // 静态文件处理
@@ -151,6 +151,7 @@ async function handleRequest(req: Request): Promise<Response> {
 }
 
 Deno.serve(handleRequest); 
+
 
 
 
