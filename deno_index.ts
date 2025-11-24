@@ -69,10 +69,25 @@ async function handleWebSocket(req: Request): Promise<Response> {
 
 async function handleAPIRequest(req: Request): Promise<Response> {
   try {
-    //const worker = await import('./worker.mjs');
     const appworker = await import('./appworker.mjs');
-    //await worker.default.fetch(req);
     return await appworker.default.fetch(req);
+  } catch (error) {
+    console.error('API request error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const errorStatus = (error as { status?: number }).status || 500;
+    return new Response(errorMessage, {
+      status: errorStatus,
+      headers: {
+        'content-type': 'text/plain;charset=UTF-8',
+      }
+    });
+  }
+}
+
+async function handleLocalRequest(req: Request): Promise<Response> {
+  try {
+    const worker = await import('./worker.mjs');
+    return await worker.default.fetch(req);
   } catch (error) {
     console.error('API request error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -97,11 +112,15 @@ async function handleRequest(req: Request): Promise<Response> {
 
   if (url.pathname.endsWith("/chat/completions") ||
       url.pathname.endsWith("/embeddings") ||
-      url.pathname.endsWith("/models") ||
-      url.pathname.endsWith("/videos") ||
+      url.pathname.endsWith("/models")) {
+    return app.handleAPIRequest(req);  
+  
+  }
+  
+  if (url.pathname.endsWith("/videos") ||
       url.pathname.endsWith("/newvideogroup") ||
       url.pathname.endsWith("/movevideos")) {
-    return app.handleAPIRequest(req);
+    return app.handleLocalRequest(req);
   }
 
   // 静态文件处理
@@ -133,6 +152,7 @@ async function handleRequest(req: Request): Promise<Response> {
 }
 
 Deno.serve(handleRequest); 
+
 
 
 
