@@ -120,11 +120,11 @@ async function handleRequest(req: Request): Promise<Response> {
       url.pathname.endsWith("/newvideogroup") ||
       url.pathname.endsWith("/movevideos") ||
       url.pathname.endsWith("/savevideodetails") ||
-      url.pathname.startsWith('/videos/') ||
-      url.pathname.startsWith('/deletevideogroup/') ||
-      url.pathname.endWith("/mockdata") ||
-      url.pathname.endWith("/postselecteddata") ||
-      url.pathname.endWith("/saveselecteddata")) {
+      url.pathname.startsWith("/videos/") ||
+      url.pathname.startsWith("/deletevideogroup/") ||
+      url.pathname.endsWith("/mockdata") ||
+      url.pathname.endsWith("/postselecteddata") ||
+      url.pathname.endsWith("/saveselecteddata")) {
     return handleLocalRequest(req);
   }
 
@@ -157,6 +157,7 @@ async function handleRequest(req: Request): Promise<Response> {
 }
 
 Deno.serve(handleRequest); 
+
 
 
 
