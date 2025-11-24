@@ -1,17 +1,10 @@
-// import fs from 'node:fs'; // Cloudflare Workers 不支持本地文件系统
-// import { promisify } from 'node:util'; // Cloudflare Workers 不支持本地文件系统
-
-// // Promisify fs methods for async/await usage
-// const readFile = promisify(fs.readFile); // Cloudflare Workers 不支持本地文件系统
-// const writeFile = promisify(fs.writeFile); // Cloudflare Workers 不支持本地文件系统
-
 // --- Global State ---
 // 注意：在无服务器环境中，这些全局变量的持久性**不会在请求之间持久化**。
 // 它们仅在当前 Worker 实例的生命周期内有效，且实例可能随时被销毁和重建。
 // 理想情况下，数据应从 Cloudflare KV Store, D1 数据库, 或 R2 对象存储加载和保存。
-let videos: any[] = [];
-let storagedata: any[] = [];
-let nextVideoId: number = 1; // 每次 Worker 实例启动时可能重置为 1
+let videos = [];
+let storagedata = [];
+let nextVideoId = 1; // 每次 Worker 实例启动时可能重置为 1
 
 // --- Utility Classes and Functions ---
 
@@ -19,8 +12,7 @@ let nextVideoId: number = 1; // 每次 Worker 实例启动时可能重置为 1
  * HttpError class for consistent error handling.
  */
 class HttpError extends Error {
-  status: number;
-  constructor(message: string, status: number) {
+  constructor(message, status) {
     super(message);
     this.name = 'HttpError';
     // 修复 instanceof 检查，确保继承关系正确
@@ -31,10 +23,10 @@ class HttpError extends Error {
 
 /**
  * Applies CORS headers to ResponseInit options.
- * @param responseOptions - Optional ResponseInit object to modify.
- * @returns ResponseInit with CORS headers.
+ * @param {ResponseInit} [responseOptions={}] - Optional ResponseInit object to modify.
+ * @returns {ResponseInit} ResponseInit with CORS headers.
  */
-const fixCors = (responseOptions: ResponseInit = {}): ResponseInit => {
+const fixCors = (responseOptions = {}) => {
   const headers = new Headers(responseOptions.headers);
   headers.set("Access-Control-Allow-Origin", "*");
   headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -45,9 +37,9 @@ const fixCors = (responseOptions: ResponseInit = {}): ResponseInit => {
 
 /**
  * Handles OPTIONS requests for CORS preflight.
- * @returns A Response for a preflight request.
+ * @returns {Response} A Response for a preflight request.
  */
-const handleOPTIONS = (): Response => {
+const handleOPTIONS = () => {
   return new Response(null, fixCors({ status: 204 }));
 };
 
@@ -59,16 +51,16 @@ const handleOPTIONS = (): Response => {
 /**
  * Loads video data from 'videos.json' and initializes nextVideoId.
  */
-async function loadVideos(): Promise<void> {
+async function loadVideos() {
     // try {
-    //     const data: string = await readFile('videos.json', 'utf8');
-    //     const videoData: any[] = JSON.parse(data);
+    //     const data = await readFile('videos.json', 'utf8');
+    //     const videoData = JSON.parse(data);
     //     videos = videoData;
 
     //     let maxId = 0;
     //     videos.forEach(group => {
     //         if (group.videolist && Array.isArray(group.videolist)) {
-    //             group.videolist.forEach((video: any) => {
+    //             group.videolist.forEach(video => {
     //                 const videoId = parseInt(video.id);
     //                 if (!isNaN(videoId) && videoId > maxId) {
     //                     maxId = videoId;
@@ -78,7 +70,7 @@ async function loadVideos(): Promise<void> {
     //     });
     //     nextVideoId = maxId + 1;
     //     console.log(`[INFO] Videos loaded. Next Video ID will be: ${nextVideoId}`);
-    // } catch (err: any) {
+    // } catch (err) {
     //     if (err.code === 'ENOENT') {
     //         console.warn('[WARN] videos.json not found, initializing with empty video list.');
             videos = []; // 在 Workers 上，这里将保持为空，因为无法从文件加载
@@ -94,11 +86,11 @@ async function loadVideos(): Promise<void> {
 /**
  * Saves current video data to 'videos.json'.
  */
-async function saveVideos(): Promise<void> {
+async function saveVideos() {
     // try {
     //     await writeFile('videos.json', JSON.stringify(videos, null, 2), 'utf8');
     //     console.log('[INFO] videos.json saved successfully.');
-    // } catch (err: any) {
+    // } catch (err) {
     //     console.error('Error writing videos.json:', err);
     //     throw new HttpError("Failed to save video data.", 500);
     // }
@@ -108,12 +100,12 @@ async function saveVideos(): Promise<void> {
 /**
  * Loads storage data from 'storages.json'.
  */
-async function loadStorages(): Promise<void> {
+async function loadStorages() {
     // try {
-    //     const data: string = await readFile('storages.json', 'utf8');
+    //     const data = await readFile('storages.json', 'utf8');
     //     storagedata = JSON.parse(data);
     //     console.log('[INFO] storages.json loaded.');
-    // } catch (err: any) {
+    // } catch (err) {
     //     if (err.code === 'ENOENT') {
     //         console.warn('[WARN] storages.json not found, initializing with empty storage data.');
             storagedata = []; // 在 Workers 上，这里将保持为空
@@ -128,11 +120,11 @@ async function loadStorages(): Promise<void> {
 /**
  * Saves current storage data to 'storages.json'.
  */
-async function saveStorages(): Promise<void> {
+async function saveStorages() {
     // try {
     //     await writeFile('storages.json', JSON.stringify(storagedata, null, 2), 'utf8');
     //     console.log('[INFO] storages.json saved successfully.');
-    // } catch (err: any) {
+    // } catch (err) {
     //     console.error('Error writing storages.json:', err);
     //     throw new HttpError("Failed to save storage data.", 500);
     // }
@@ -146,7 +138,7 @@ async function saveStorages(): Promise<void> {
 //     try {
 //         await loadVideos();
 //         await loadStorages();
-//     } catch (e: any) {
+//     } catch (e) {
 //         console.error("[CRITICAL] Initial data load failed:", e.message);
 //     }
 // })();
@@ -155,17 +147,17 @@ async function saveStorages(): Promise<void> {
 export default {
   /**
    * Main fetch handler for all incoming requests.
-   * @param request - The incoming Request object.
-   * @returns A Promise that resolves to a Response object.
+   * @param {Request} request - The incoming Request object.
+   * @returns {Promise<Response>} A Promise that resolves to a Response object.
    */
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request) {
     // 处理 CORS 预检请求
     if (request.method === "OPTIONS") {
       return handleOPTIONS();
     }
 
     // 统一错误处理函数
-    const errHandler = (err: HttpError | Error): Response => {
+    const errHandler = (err) => {
       console.error("[ERROR]", err);
       const status = (err instanceof HttpError) ? err.status : 500;
       const message = err.message || "Internal Server Error";
@@ -177,7 +169,7 @@ export default {
       // const auth = request.headers.get("Authorization");
 
       // 断言函数，用于检查条件并抛出 HttpError
-      const assert = (success: boolean, message: string = "Method Not Allowed", status: number = 405) => {
+      const assert = (success, message = "Method Not Allowed", status = 405) => {
         if (!success) {
           throw new HttpError(message, status);
         }
@@ -197,7 +189,7 @@ export default {
       switch (true) {
         // --- GET Endpoints ---
         case request.method === "GET" && (pathname === "/videos" || pathname === "/videolist"):
-          let allVideos: any[] = [];
+          let allVideos = [];
           videos.forEach(videoObj => {
               if (videoObj.videolist && Array.isArray(videoObj.videolist)) {
                   allVideos = allVideos.concat(videoObj.videolist);
@@ -233,7 +225,7 @@ export default {
           const newVideoGroup = await request.json();
           newVideoGroup.videocount = newVideoGroup.videolist ? newVideoGroup.videolist.length : 0;
           if (newVideoGroup.videolist && Array.isArray(newVideoGroup.videolist)) {
-            newVideoGroup.videolist.forEach((video: any) => {
+            newVideoGroup.videolist.forEach(video => {
                 video.id = nextVideoId++;
             });
           }
@@ -257,9 +249,9 @@ export default {
             throw new HttpError("Source or destination video group not found or malformed.", 404);
           }
 
-          const videosToMove: any[] = [];
+          const videosToMove = [];
           // 过滤掉源组中要移动的视频，并收集这些视频
-          sourceGroup.videolist = sourceGroup.videolist.filter((video: any) => {
+          sourceGroup.videolist = sourceGroup.videolist.filter(video => {
              if (selectedVideos.includes(video.id)) {
                  videosToMove.push(video);
                  return false; // 从源组中移除
@@ -333,7 +325,7 @@ export default {
           let videoFound = false;
           videos.forEach(group => {
               if (group.videolist && Array.isArray(group.videolist)) {
-                  group.videolist = group.videolist.map((video: any) => {
+                  group.videolist = group.videolist.map(video => {
                       if (video.id === videoIdToUpdate) {
                           videoFound = true;
                           return { ...video, ...updatedVideo, id: videoIdToUpdate }; // 合并更新并确保ID不变
@@ -360,7 +352,7 @@ export default {
           videos.forEach(group => {
               if (group.videolist && Array.isArray(group.videolist)) {
                   const initialLength = group.videolist.length;
-                  group.videolist = group.videolist.filter((video: any) => video.id !== videoIdToDelete);
+                  group.videolist = group.videolist.filter(video => video.id !== videoIdToDelete);
                   if (group.videolist.length < initialLength) {
                       videoDeleted = true;
                       group.videocount = group.videolist.length; // 更新计数
@@ -391,7 +383,7 @@ export default {
         default:
           throw new HttpError("404 Not Found", 404);
       }
-    } catch (err: any) {
+    } catch (err) {
       return errHandler(err);
     }
   }
