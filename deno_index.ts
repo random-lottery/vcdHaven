@@ -100,7 +100,7 @@ async function handleRequest(req: Request): Promise<Response> {
       url.pathname.endsWith("/models") ||
       url.pathname.endsWith("/videos") ||
       url.pathname.endsWith("/newvideogroup") ||
-      url.pathname.endsWith("/movevideos"){
+      url.pathname.endsWith("/movevideos")) {
     return app.handleAPIRequest(req);
   }
 
@@ -133,5 +133,6 @@ async function handleRequest(req: Request): Promise<Response> {
 }
 
 Deno.serve(handleRequest); 
+
 
 
