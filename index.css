@@ -77,6 +77,7 @@
         min-width: 800px;
         margin: 10px auto;
         position: relative;
+        overflow: hidden;
     }
  
     .thumbnails {
