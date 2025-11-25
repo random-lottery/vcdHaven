@@ -90,9 +90,10 @@
  
     .thumb-item {
         flex: 0 0 160px;
-        height: 90px;
         border-radius: 4px;
-        overflow: hidden;
+        width: auto;
+        height: auto;
+        object-fit: contain;
         cursor: pointer;
         transition: transform 0.3s, box-shadow 0.3s;
         position: relative;
@@ -119,9 +120,9 @@
     }
  
     .thumb-item img {
-        width: auto;
+        width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
     }
  
     /* 隐藏滚动条 */
