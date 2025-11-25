@@ -74,7 +74,7 @@
     /* 新增CSS样式 */
     .thumbnail-container {
         max-width: 1200px;
-        min-width: 380px;
+        min-width: 360px;
         margin: 10px auto;
         position: relative;
         overflow: hidden;
@@ -90,7 +90,7 @@
  
     .thumb-item {
         flex: 0 0 160px;
-        height: 60px;
+        height: 90px;
         border-radius: 4px;
         object-fit: contain;
         cursor: pointer;
@@ -119,8 +119,8 @@
     }
  
     .thumb-item img {
-        width: 100%;
-        height: 100%;
+        width: auto;
+        height: auto;
         object-fit: cover;
     }
  
