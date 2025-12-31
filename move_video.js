@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let videoGroups = [];
 
     // Fetch video groups from videos
-    fetch('videos')
+    fetch('/videolist')
         .then(response => response.json())
         .then(data => {
             videoGroups = data;
@@ -91,4 +91,5 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sourceGroupSelect').addEventListener('change', populateVideoLists);
     document.getElementById('destGroupSelect').addEventListener('change', populateVideoLists);
 });
+
 
