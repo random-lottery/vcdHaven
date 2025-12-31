@@ -251,9 +251,10 @@ export default {
                 if (videoId) {
                   // If videoId is provided, find and return only that video
                   const foundVideo = group.videolist.map(video => {
-                  if(video.id === videoId){
-                    videoIdFound = true;
-                    return {...video};
+                    if (String(video.id) === String(videoId)) {
+                      videoIdFound = true;
+                      return {...video};
+                    }
                   });
                   if (videoIdFound) {
                     groupVideos = [{ ...foundVideo }];
