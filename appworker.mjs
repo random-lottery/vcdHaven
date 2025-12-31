@@ -231,7 +231,7 @@ export default {
         case request.method === "GET" && pathname === "/mockdata":
           return new Response(JSON.stringify(storagedata), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
 
-        case request.method === "GET" && pathname === "/videolist":
+        case request.method === "GET" && pathname.startsWith("/videolist"):
           let groupVideos = [];
           const groupName = pathname.split('/')[2];
           const videoId = pathname.split('/')[3];
