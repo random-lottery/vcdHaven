@@ -89,7 +89,20 @@ async function loadVideos() {
             console.log(`[INFO] Videos loaded from KV. Next Video ID will be: ${nextVideoId}`);
         } else {
             console.warn('[WARN] No video data found in KV, initializing with empty video list.');
-            videos = [];
+            videos = JSON.parse(Deno.env.get('InitVideos') || '[]');  // 从环境变量中获取初始视频数据
+            let maxId = 0;
+            videos.forEach(group => {
+                if (group.videolist && Array.isArray(group.videolist)) {
+                    group.videolist.forEach(video => {
+                        const videoId = parseInt(video.id);
+                        if (!isNaN(videoId) && videoId > maxId) {
+                            maxId = videoId;
+                        }
+                    });
+                }
+            });
+            nextVideoId = maxId + 1;
+            console.log(`[INFO] Videos initialized from environment variable. Next Video ID will be: ${nextVideoId}`);  
             nextVideoId = 1;
         }
     } catch (err) {
@@ -206,7 +219,7 @@ export default {
       // 根据请求方法和路径进行路由
       switch (true) {
         // --- GET Endpoints ---
-        case request.method === "GET" && (pathname === "/videos" || pathname === "/videolist"):
+        case request.method === "GET" && pathname === "/videos":
           let allVideos = [];
           videos.forEach(videoObj => {
               if (videoObj.videolist && Array.isArray(videoObj.videolist)) {
@@ -217,6 +230,34 @@ export default {
 
         case request.method === "GET" && pathname === "/mockdata":
           return new Response(JSON.stringify(storagedata), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
+
+        case request.method === "GET" && pathname === "/videolist":
+          let groupVideos = [];
+          const groupName = pathname.split('/')[2];
+          const videoId = pathname.split('/')[3];
+          if (isNaN(groupName)) {
+            throw new HttpError("Invalid group name.", 400);
+          }
+          let groupFound = false;
+          videos.forEach(group => {
+            if (group.videolist && Array.isArray(group.videolist)) {
+              if (group.videoname === groupName) {
+                groupVideos = group.videolist.map(video => {
+                  if (video.id === videoId) {
+                    groupFound = true;
+                    return { ...video }; // 返回视频对象
+                  }
+                  return video;
+                });
+                if (! groupFound) {
+                  groupVideos = groupVideos.concat(group.videolist);
+                }
+              }else{
+                groupFound = false;
+              }
+            };
+          });
+          return new Response(JSON.stringify(groupVideos), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
 
         // --- POST Endpoints ---
         case request.method === "POST" && pathname === "/videos":

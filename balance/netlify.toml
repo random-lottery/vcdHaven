@@ -1,0 +1,6 @@
+[build]
+  functions = "functions"
+  publish = "public"  # 你的静态文件目录
+
+[dev]
+  functions = "functions"

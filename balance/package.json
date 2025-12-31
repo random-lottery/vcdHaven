@@ -1,0 +1,14 @@
+{
+  "name": "netlify-reverse-proxy",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@types/node": "^20.0.0",
+    "node-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
