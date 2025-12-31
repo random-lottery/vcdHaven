@@ -93,7 +93,7 @@ function populateVideoData() {
     const videoTableBody = document.querySelector('#videoTable tbody');
     videoTableBody.innerHTML = '';
 
-    fetch('/videolist')
+    fetch('/videos')
         .then(response => response.json())
         .then(data => {
             data.forEach(video => {
@@ -120,3 +120,4 @@ function populateVideoData() {
             });
         });
 }
+
