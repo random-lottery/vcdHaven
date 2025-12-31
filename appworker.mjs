@@ -231,32 +231,41 @@ export default {
         case request.method === "GET" && pathname === "/mockdata":
           return new Response(JSON.stringify(storagedata), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
 
-        case request.method === "GET" && pathname === "/videolist":
+        case request.method === "GET" && pathname.startsWith("/videolist"):
           let groupVideos = [];
-          const groupName = pathname.split('/')[2];
-          const videoId = pathname.split('/')[3];
-          if (isNaN(groupName)) {
+          const pathParts = pathname.split('/').filter(part => part); // Filter out empty strings
+          const groupName = pathParts[1]; // After filtering, index 0 is "videolist", 1 is groupName
+          const videoId = pathParts[2]; // Optional video ID
+          
+          if (!groupName) {
             throw new HttpError("Invalid group name.", 400);
           }
+          
           let groupFound = false;
           videos.forEach(group => {
             if (group.videolist && Array.isArray(group.videolist)) {
               if (group.videoname === groupName) {
-                groupVideos = group.videolist.map(video => {
-                  if (video.id === videoId) {
-                    groupFound = true;
-                    return { ...video }; // 返回视频对象
+                groupFound = true;
+                if (videoId) {
+                  // If videoId is provided, find and return only that video
+                  const foundVideo = group.videolist.find(video => String(video.id) === String(videoId));
+                  if (foundVideo) {
+                    groupVideos = [{ ...foundVideo }];
+                  } else {
+                    throw new HttpError(`Video with ID ${videoId} not found in group ${groupName}.`, 404);
                   }
-                  return video;
-                });
-                if (! groupFound) {
-                  groupVideos = groupVideos.concat(group.videolist);
+                } else {
+                  // If no videoId, return all videos in the group
+                  groupVideos = group.videolist.map(video => ({ ...video }));
                 }
-              }else{
-                groupFound = false;
               }
-            };
+            }
           });
+          
+          if (!groupFound) {
+            throw new HttpError(`Video group "${groupName}" not found.`, 404);
+          }
+          
           return new Response(JSON.stringify(groupVideos), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
 
         // --- POST Endpoints ---
