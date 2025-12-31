@@ -89,7 +89,7 @@ async function loadVideos() {
             console.log(`[INFO] Videos loaded from KV. Next Video ID will be: ${nextVideoId}`);
         } else {
             console.warn('[WARN] No video data found in KV, initializing with empty video list.');
-            videos = JSON.parse(Deno.env.get('InitVideos') || '[]');  // 从环境变量中获取初始视频数据
+            videos = JSON.parse(Deno.env.get('videos_data') || '[]');  // 从环境变量中获取初始视频数据
             let maxId = 0;
             videos.forEach(group => {
                 if (group.videolist && Array.isArray(group.videolist)) {
