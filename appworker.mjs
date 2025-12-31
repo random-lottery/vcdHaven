@@ -239,7 +239,8 @@ export default {
           const videoId = pathParts[2]; // Optional video ID
           
           if (!groupName) {
-            throw new HttpError("Invalid group name.", 400);
+            // throw new HttpError("Invalid group name.", 400);
+            return new Response(JSON.stringify(videos), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
           }
           
           let groupFound = false;
