@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
     // Fetch existing video groups from videos.json
-    fetch('/videos')
+    fetch('/videolist')
         .then(response => response.json())
         .then(data => {
             existingVideoGroups = data;
@@ -111,5 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
 
 
