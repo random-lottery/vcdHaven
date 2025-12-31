@@ -107,7 +107,7 @@ async function loadVideos() {
         }
     } catch (err) {
         console.error('Error loading videos from KV:', err);
-        await kv.set(["videos_data"], '[]'));
+        await kv.set(["videos_data"], '[]');
         throw new HttpError(`Failed to load video data from KV: ${err.message}`, 500);
     }
 }
@@ -303,7 +303,7 @@ export default {
               if (!envValue) {
                 throw new HttpError(`Environment variable ${variableName} not found.`, 404);
               }
-              const value = JSON.stringify(JSON.parse(envValue),null,2);
+              const value = envValue;
               // Store the value in KV (Deno KV can store any serializable value)
               await kv.set(kvKey, value);
               
