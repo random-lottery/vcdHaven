@@ -243,17 +243,20 @@ export default {
           }
           
           let groupFound = false;
+          let videoIdFound = false;
           videos.forEach(group => {
             if (group.videolist && Array.isArray(group.videolist)) {
               if (group.videoname === groupName) {
                 groupFound = true;
                 if (videoId) {
                   // If videoId is provided, find and return only that video
-                  const foundVideo = group.videolist.find(video => video.id == videoId);
-                  if (foundVideo) {
-                    groupVideos = groupVideos.concat({ ...foundVideo });
-                  } else {
-                    throw new HttpError(`Video with ID ${videoId} not found in group ${groupName}.`, 404);
+                  const foundVideo = group.videolist.map(video => {
+                  if(video.id === videoId){
+                    videoIdFound = true;
+                    return {...video};
+                  });
+                  if (videoIdFound) {
+                    groupVideos = [{ ...foundVideo }];
                   }
                 } else {
                   // If no videoId, return all videos in the group
@@ -262,7 +265,10 @@ export default {
               }
             }
           });
-          
+
+          if (!videoIdFound && videoId) {
+            throw new HttpError(`Video with ID ${videoId} not found in group ${groupName}.`, 404);
+          }
           if (!groupFound) {
             throw new HttpError(`Video group "${groupName}" not found.`, 404);
           }
