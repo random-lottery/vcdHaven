@@ -249,9 +249,9 @@ export default {
                 groupFound = true;
                 if (videoId) {
                   // If videoId is provided, find and return only that video
-                  const foundVideo = group.videolist.find(video => String(video.id) === String(videoId));
+                  const foundVideo = group.videolist.find(video => video.id == videoId);
                   if (foundVideo) {
-                    groupVideos = [{ ...foundVideo }];
+                    groupVideos = groupVideos.concat({ ...foundVideo });
                   } else {
                     throw new HttpError(`Video with ID ${videoId} not found in group ${groupName}.`, 404);
                   }
