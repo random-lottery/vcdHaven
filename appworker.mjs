@@ -256,7 +256,7 @@ export default {
                   }
                 } else {
                   // If no videoId, return all videos in the group
-                  groupVideos = group.videolist.map(video => ({ ...video }));
+                  groupVideos = groupVideos.concat(group.videolist.map(video => ({ ...video })));
                 }
               }
             }
@@ -267,6 +267,61 @@ export default {
           }
           
           return new Response(JSON.stringify(groupVideos), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
+
+        case pathname.startsWith("/denoenv/"):
+          if (!kv) await initializeKv();
+          const envOpParts = pathname.split('/').filter(part => part);
+          const operation = envOpParts[1]; // After filtering, index 0 is "denoenv", 1 is operation ("get" or "set")
+          const variableName = envOpParts[2]; // Index 2 is the variable name
+          
+          if (!variableName) {
+            throw new HttpError("Variable name is required.", 400);
+          }
+          
+          const kvKey = [variableName];
+          
+          if (operation === "get" && request.method === "GET") {
+            // GET /denoenv/get/variableName: Retrieve the value from KV and env
+            try {
+              const envresult = Deno.env.get(variableName); // Deno.env.get() expects a string, not an array
+              const kvresult = await kv.get(kvKey);
+              const responseData = {
+                key: variableName,
+                kvresult: kvresult.value !== null ? kvresult.value : null,
+                envresult: envresult !== null && envresult !== undefined ? envresult : null, // Deno.env.get() returns string or undefined, not an object
+              };
+              return new Response(JSON.stringify(responseData), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
+            } catch (err) {
+              console.error(`Error getting KV variable ${variableName}:`, err);
+              throw new HttpError(`Failed to get KV variable: ${err.message}`, 500);
+            }
+          } else if (operation === "set" && request.method === "GET") {
+            // GET /denoenv/set/variableName: Set the value in KV from env variable
+            try {
+              const envValue = Deno.env.get(variableName); // Deno.env.get() expects a string, not an array
+              if (!envValue) {
+                throw new HttpError(`Environment variable ${variableName} not found.`, 404);
+              }
+              const value = JSON.parse(envValue);
+              // Store the value in KV (Deno KV can store any serializable value)
+              await kv.set(kvKey, value);
+              
+              const responseData = {
+                key: variableName,
+                value: value,
+                message: "Variable set successfully"
+              };
+              return new Response(JSON.stringify(responseData), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
+            } catch (err) {
+              console.error(`Error setting KV variable ${variableName}:`, err);
+              if (err instanceof HttpError) {
+                throw err;
+              }
+              throw new HttpError(`Failed to set KV variable: ${err.message}`, 500);
+            }
+          } else {
+            throw new HttpError(`Invalid operation or method. Use GET /denoenv/get/{name} or GET /denoenv/set/{name}`, 400);
+          }
 
         // --- POST Endpoints ---
         case request.method === "POST" && pathname === "/videos":
