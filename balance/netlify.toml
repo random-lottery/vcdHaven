@@ -1,6 +1,11 @@
 [build]
   functions = "functions"
   publish = "public"  # 你的静态文件目录
-
+  command = "vite build"
+  publish = "dist"
 [dev]
   functions = "functions"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
