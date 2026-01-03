@@ -176,6 +176,198 @@ async function saveStorages() {
     }
 })();
 
+/**
+ * 将视频数据渲染为完整的、带有样式的 HTML 字符串。
+ * @param {Array<object>} data - 视频数据数组。
+ * @returns {string} 完整的 HTML 文档字符串。
+ */
+function renderVideoDataToHTML(data) {
+  // --- 1. CSS 样式定义 (使用模板字符串) ---
+  // 这种方式将样式与组件逻辑紧密耦合，便于维护
+  const styles = `
+    <style>
+      /* 基础重置和页面设置 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        background-color: #f4f4f4;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+
+      /* 主容器，实现居中 */
+      .main-container {
+        max-width: 800px;
+        margin: 0 auto; /* 核心：水平居中 */
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      /* 视频卡片样式 */
+      .video-card {
+        border: 1px solid #e0e0e0;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 6px;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .video-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .video-card h2 {
+        color: #333;
+        margin-bottom: 0.5rem;
+      }
+
+      .video-card p {
+        color: #666;
+        margin-bottom: 1rem;
+      }
+
+      .video-card img {
+        width: 100%;
+        max-width: 600px;
+        height: auto;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      }
+
+      /* 视频列表样式 */
+      .video-list {
+        list-style: none; /* 移除默认的列表项标记 */
+        padding-left: 0;
+      }
+
+      .video-list-item {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      /* 列表项的色块样式，方便Tab键定位 */
+      .list-item-indicator {
+        width: 12px;
+        height: 12px;
+        background-color: #007bff; /* 蓝色色块 */
+        border-radius: 50%; /* 圆形色块 */
+        margin-right: 0.75rem;
+        flex-shrink: 0; /* 防止色块被压缩 */
+      }
+
+      /* 链接和视频的通用样式 */
+      .video-link, .video-player-container {
+        text-decoration: none;
+        color: #007bff;
+        font-weight: 500;
+        flex-grow: 1; /* 占据剩余空间 */
+      }
+
+      .video-link:hover {
+        text-decoration: underline;
+      }
+      
+      .video-player-container p {
+        margin-bottom: 0.5rem;
+      }
+
+      video {
+        width: 100%;
+        max-width: 320px;
+        height: auto;
+        border-radius: 4px;
+      }
+
+      /* 当元素获得焦点时（例如通过Tab键），提供更明显的视觉反馈 */
+      a:focus, video:focus {
+        outline: 3px solid #007bff;
+        outline-offset: 2px;
+      }
+    </style>
+  `;
+
+  // --- 2. HTML 内容生成 ---
+  let bodyContent = '';
+
+  data.forEach((video) => {
+    bodyContent += `
+      <article class="video-card">
+        <h2>视频名: ${video.videoname}</h2>
+        <p>简介: ${video.videointro}</p>
+        <img src="${video.videoname}" alt="${video.videoname}封面" />
+        <p>视频总数: ${video.videocount}</p>
+        
+        <h3>视频列表:</h3>
+        <ul class="video-list">
+    `;
+
+    if (video.videolist && video.videolist.length > 0) {
+      video.videolist.forEach(item => {
+        if (item.url && item.title) {
+          const isVideoFile = /\.(mp4|mov|webm|ogg)$/i.test(item.url);
+          bodyContent += '<li class="video-list-item">';
+          bodyContent += '<span class="list-item-indicator" aria-hidden="true"></span>'; // 色块，aria-hidden="true" 对屏幕阅读器隐藏
+
+          if (isVideoFile) {
+            // 提取视频类型，例如 'mp4'
+            const videoType = item.url.split('.').pop().toLowerCase();
+            bodyContent += `
+              <div class="video-player-container">
+                <p>${item.title}</p>
+                <video controls src="${item.url}" type="video/${videoType}">
+                  您的浏览器不支持 video 标签。
+                </video>
+              </div>
+            `;
+          } else {
+            bodyContent += `<a class="video-link" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`;
+          }
+          bodyContent += '</li>';
+        }
+      });
+    } else {
+      bodyContent += `
+        <li class="video-list-item">
+          <span class="list-item-indicator" aria-hidden="true"></span>
+          <span>暂无视频内容</span>
+        </li>
+      `;
+    }
+
+    bodyContent += `
+        </ul>
+      </article>
+    `;
+  });
+
+  // --- 3. 组装完整的 HTML 文档 ---
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>视频列表</title>
+      ${styles}
+    </head>
+    <body>
+      <main class="main-container">
+        ${bodyContent}
+      </main>
+    </body>
+    </html>
+  `;
+
+  return htmlContent;
+}
 
 export default {
   /**
@@ -232,6 +424,9 @@ export default {
         case request.method === "GET" && pathname === "/mockdata":
           return new Response(JSON.stringify(storagedata), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
 
+        case request.method === "GET" && pathname === "/tv":
+          return new Response(renderVideoDataToHTML(videos), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
+          
         case request.method === "GET" && pathname.startsWith("/videolist"):
           let groupVideos = [];
           const pathParts = pathname.split('/').filter(part => part); // Filter out empty strings
