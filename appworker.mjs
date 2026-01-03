@@ -195,7 +195,7 @@ function renderVideoDataToHTML(data) {
       }
 
       body {
-        background-color: #f4f4f4;
+        background-color: #444444;
         padding: 2rem;
         line-height: 1.6;
       }
@@ -245,9 +245,11 @@ function renderVideoDataToHTML(data) {
       .video-list {
         list-style: none; /* 移除默认的列表项标记 */
         padding-left: 0;
+        display: inline-flex;
       }
 
       .video-list-item {
+        list-style: none;
         margin-bottom: 1rem;
         display: flex;
         align-items: center;
