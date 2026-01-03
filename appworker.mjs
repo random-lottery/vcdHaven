@@ -358,7 +358,7 @@ function renderVideoDataToHTML(data) {
       <title>视频列表</title>
       ${styles}
     </head>
-    <body>
+    <body bgcolor=black>
       <main class="main-container">
         ${bodyContent}
       </main>
@@ -424,7 +424,7 @@ export default {
         case request.method === "GET" && pathname === "/mockdata":
           return new Response(JSON.stringify(storagedata), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
 
-        case request.method === "GET" && pathname === "/tv":
+        case request.method === "GET" && pathname === "/plain":
           return new Response(renderVideoDataToHTML(videos), fixCors({ status: 200, headers: { 'Content-Type': 'text/html;charset=UTF-8' } }));
           
         case request.method === "GET" && pathname.startsWith("/videolist"):
