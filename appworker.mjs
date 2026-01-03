@@ -425,7 +425,7 @@ export default {
           return new Response(JSON.stringify(storagedata), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
 
         case request.method === "GET" && pathname === "/tv":
-          return new Response(renderVideoDataToHTML(videos), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
+          return new Response(renderVideoDataToHTML(videos), fixCors({ status: 200, headers: { 'Content-Type': 'text/html;charset=UTF-8' } }));
           
         case request.method === "GET" && pathname.startsWith("/videolist"):
           let groupVideos = [];
