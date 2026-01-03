@@ -121,6 +121,7 @@ async function handleRequest(req: Request): Promise<Response> {
       url.pathname.endsWith("/movevideos") ||
       url.pathname.endsWith("/savevideodetails") ||
       url.pathname.startsWith("/videos/") ||
+      url.pathname.startsWith("/tv") ||
       url.pathname.startsWith("/videolist") ||
       url.pathname.startsWith("/denoenv") ||
       url.pathname.startsWith("/deletevideogroup/") ||
@@ -159,6 +160,7 @@ async function handleRequest(req: Request): Promise<Response> {
 }
 
 Deno.serve(handleRequest); 
+
 
 
 
