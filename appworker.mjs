@@ -202,7 +202,7 @@ function renderVideoDataToHTML(data) {
 
       /* 主容器，实现居中 */
       .main-container {
-        max-width: 99%;
+        max-width: 98%;
         margin: 0 auto; /* 核心：水平居中 */
         background-color: #f4f4f4;
         padding: 0.5rem;
@@ -275,7 +275,6 @@ function renderVideoDataToHTML(data) {
 
       .list-item-divider {
         width: 100%;
-        max-width: 320px;
         height: 1px;
         background-color: #007bff;
         margin: 0.5rem 0;
@@ -360,7 +359,7 @@ function renderVideoDataToHTML(data) {
             bodyContent += `<a class="video-link" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`;
             if (item.summary) { // 如果summary不为空，则显示summary
               bodyContent += '<span class="list-item-divider" aria-hidden="true"></span>'; 
-              bodyContent += `<p style="margin-top: 0.5rem; max-width: 320;">${item.summary}</p>`;
+              bodyContent += `<p style="margin-top: 0.5rem; max-width: 320px;">${item.summary}</p>`;
             }
           }
           bodyContent += '</li>';
