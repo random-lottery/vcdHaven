@@ -245,7 +245,15 @@ function renderVideoDataToHTML(data) {
       .video-list {
         list-style: none; /* 移除默认的列表项标记 */
         padding-left: 0;
-        display: inline-flex;
+        display: ruby;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        align-content: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-left: 0;
       }
 
       .video-list-item {
