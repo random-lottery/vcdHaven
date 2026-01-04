@@ -352,7 +352,7 @@ function renderVideoDataToHTML(data) {
                 <video controls src="${item.url}" poster="${item.snapshot}" type="video/${videoType}">
                   您的浏览器不支持 video 标签。
                 </video>
-                <p>${item.summary}</p>
+                <p style="margin-top: 0.5rem; width: 300px;">${item.summary}</p>
               </div>
             `;
           } else {
