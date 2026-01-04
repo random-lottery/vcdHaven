@@ -276,11 +276,11 @@ function renderVideoDataToHTML(data) {
       .list-item-divider {
         width: 100%;
         height: 1px;
-        background-color: #e0e0e0;
+        background-color: #007bff;
         margin: 0.5rem 0;
       } 
       .list-item-divider:before {
-        content: "●";
+        content: "";
         display: block;
         width: 12px;
         height: 12px;
