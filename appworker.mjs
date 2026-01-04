@@ -311,7 +311,7 @@ function renderVideoDataToHTML(data) {
       <article class="video-card">
         <h2>视频名: ${video.videoname}</h2>
         <p>简介: ${video.videointro}</p>
-        <img src="${video.videoname}" alt="${video.videoname}封面" />
+        <img src="${video.videopicture}" alt="${video.videoname}封面" />
         <p>视频总数: ${video.videocount}</p>
         
         <h3>视频列表:</h3>
