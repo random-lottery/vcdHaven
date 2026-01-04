@@ -196,16 +196,16 @@ function renderVideoDataToHTML(data) {
 
       body {
         background-color: #444444;
-        padding: 2rem;
+        padding: 0rem;
         line-height: 1.6;
       }
 
       /* 主容器，实现居中 */
       .main-container {
-        max-width: 100%;
+        max-width: 90%;
         margin: 0 auto; /* 核心：水平居中 */
         background-color: #f4f4f4;
-        padding: 2rem;
+        padding: 0.5rem;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
@@ -274,7 +274,7 @@ function renderVideoDataToHTML(data) {
       }
 
       .list-item-divider {
-        width: 100%;
+        max-width: 320px;
         height: 1px;
         background-color: #007bff;
         margin: 0.5rem 0;
