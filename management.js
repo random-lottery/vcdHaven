@@ -22,6 +22,7 @@ function modifyVideo() {
     const url = document.getElementById('url').value;
     const title = document.getElementById('title').value;
     const id = document.getElementById('selectedVideoId').value;
+    const summary = document.getElementById('videoSummary').value;
     if (!id) { alert('Please select a video from the list.'); return; }
 
      fetch('/videos/' + id, {

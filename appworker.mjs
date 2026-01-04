@@ -595,11 +595,11 @@ export default {
           return new Response(null, fixCors({ status: 200 }));
 
         case request.method === "POST" && pathname === "/savevideodetails":
-          const { vId, url: videoUrl, snapshot, summary } = await request.json();
+          const { id, url: videoUrl, snapshot, summary } = await request.json();
 
           // Basic validation
-          if (!vId || !videoUrl || !snapshot || !summary) {
-              throw new HttpError('Missing required fields (vId, url, snapshot, summary).', 400);
+          if (!id || !videoUrl || !snapshot || !summary) {
+              throw new HttpError('Missing required fields (id, url, snapshot, summary).', 400);
           }
 
           // Find and update the existing video
