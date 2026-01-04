@@ -339,7 +339,9 @@ function renderVideoDataToHTML(data) {
             `;
           } else {
             bodyContent += `<a class="video-link" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`;
-            bodyContent += `<p>${item.summary}</p>`;
+            if (item.summary) { // 如果summary不为空，则显示summary
+              bodyContent += `<br><p>${item.summary}</p>`;
+            }
           }
           bodyContent += '</li>';
         }
