@@ -324,9 +324,10 @@ function renderVideoDataToHTML(data) {
             bodyContent += `
               <div class="video-player-container">
                 <p>${item.title}</p>
-                <video controls src="${item.url}" type="video/${videoType}">
+                <video controls src="${item.url}" poster="${item.snapshot}" type="video/${videoType}">
                   您的浏览器不支持 video 标签。
                 </video>
+                <p>${item.summary}</p>
               </div>
             `;
           } else {
