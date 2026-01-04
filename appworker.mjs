@@ -259,7 +259,8 @@ function renderVideoDataToHTML(data) {
         list-style: none;
         margin-bottom: 1rem;
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
       }
 
       /* 列表项的色块样式，方便Tab键定位 */
@@ -340,7 +341,7 @@ function renderVideoDataToHTML(data) {
           } else {
             bodyContent += `<a class="video-link" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`;
             if (item.summary) { // 如果summary不为空，则显示summary
-              bodyContent += `<br><p>${item.summary}</p>`;
+              bodyContent += `<p style="margin-top: 0.5rem; width: 300px;">${item.summary}</p>`;
             }
           }
           bodyContent += '</li>';
