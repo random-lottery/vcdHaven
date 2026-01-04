@@ -244,11 +244,10 @@ function renderVideoDataToHTML(data) {
       /* 视频列表样式 */
       .video-list {
         list-style: none; /* 移除默认的列表项标记 */
-        padding-left: 0;
-        display: ruby;
+        display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
         align-content: center;
         gap: 1rem;
