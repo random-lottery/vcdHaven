@@ -202,7 +202,7 @@ function renderVideoDataToHTML(data) {
 
       /* 主容器，实现居中 */
       .main-container {
-        max-width: 100%;
+        max-width: 99%;
         margin: 0 auto; /* 核心：水平居中 */
         background-color: #f4f4f4;
         padding: 0.5rem;
@@ -273,7 +273,7 @@ function renderVideoDataToHTML(data) {
         flex-shrink: 0; /* 防止色块被压缩 */
       }
 
-      .list-item-divider
+      .list-item-divider {
         width: 100%;
         max-width: 320px;
         height: 1px;
