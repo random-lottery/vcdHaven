@@ -610,7 +610,7 @@ export default {
               if (group.videolist && Array.isArray(group.videolist)) {
                   group.videolist = group.videolist.map(video => {
                       // Compare IDs as strings to handle both string and number IDs
-                      if (String(video.id) === String(id)) {
+                      if (video.id == id) {
                           detailVideoFound = true;
                           // Update the video with new data, preserving the ID and other fields
                           updatedDetailVideo = {
@@ -658,7 +658,7 @@ export default {
           videos.forEach(group => {
               if (group.videolist && Array.isArray(group.videolist)) {
                   group.videolist = group.videolist.map(video => {
-                      if (String(video.id) === String(videoIdToUpdate)) {
+                      if (video.id == videoIdToUpdate) {
                           videoFound = true;
                           return { ...video, ...updatedVideo, id: videoIdToUpdate }; // 合并更新并确保ID不变
                       }
