@@ -273,6 +273,23 @@ function renderVideoDataToHTML(data) {
         flex-shrink: 0; /* 防止色块被压缩 */
       }
 
+      .list-item-divider {
+        width: 100%;
+        height: 1px;
+        background-color: #e0e0e0;
+        margin: 0.5rem 0;
+      } 
+      .list-item-divider:before {
+        content: "●";
+        display: block;
+        width: 12px;
+        height: 12px;
+        background-color: #007bff;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+      }
+
       /* 链接和视频的通用样式 */
       .video-link, .video-player-container {
         text-decoration: none;
@@ -341,6 +358,7 @@ function renderVideoDataToHTML(data) {
           } else {
             bodyContent += `<a class="video-link" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`;
             if (item.summary) { // 如果summary不为空，则显示summary
+              bodyContent += '<span class="list-item-divider" aria-hidden="true"></span>'; 
               bodyContent += `<p style="margin-top: 0.5rem; width: 300px;">${item.summary}</p>`;
             }
           }
