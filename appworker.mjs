@@ -196,7 +196,7 @@ function renderVideoDataToHTML(data) {
 
       body {
         background-color: #444444;
-        padding: 0.5rem;
+        padding: 0.1rem;
         line-height: 1.6;
       }
 
