@@ -341,7 +341,7 @@ function renderVideoDataToHTML(data) {
         if (item.url && item.title) {
           const isVideoFile = /\.(mp4|mov|webm|ogg)$/i.test(item.url);
           bodyContent += '<li class="video-list-item">';
-          //bodyContent += '<span class="list-item-indicator" aria-hidden="true"></span>'; // 色块，aria-hidden="true" 对屏幕阅读器隐藏
+          bodyContent += '<span class="list-item-divider" aria-hidden="true"></span>'; // 色块，aria-hidden="true" 对屏幕阅读器隐藏
 
           if (isVideoFile) {
             // 提取视频类型，例如 'mp4'
@@ -356,8 +356,7 @@ function renderVideoDataToHTML(data) {
               </div>
             `;
           } else {
-            bodyContenturl = `<a class="video-link" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`;
-            bodyContent += '<span class="list-item-indicator" aria-hidden="true">' + bodyContenturl + '</span>'; 
+            bodyContent += `<a class="video-link" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`;
             if (item.summary) { // 如果summary不为空，则显示summary
               bodyContent += '<span class="list-item-divider" aria-hidden="true"></span>'; 
               bodyContent += `<p style="margin-top: 0.5rem; width: 300px;">${item.summary}</p>`;
