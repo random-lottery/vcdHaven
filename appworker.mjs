@@ -202,7 +202,7 @@ function renderVideoDataToHTML(data) {
 
       /* 主容器，实现居中 */
       .main-container {
-        max-width: 1024px;
+        max-width: 100%;
         margin: 0 auto; /* 核心：水平居中 */
         background-color: #f4f4f4;
         padding: 2rem;
@@ -352,14 +352,14 @@ function renderVideoDataToHTML(data) {
                 <video controls src="${item.url}" poster="${item.snapshot}" type="video/${videoType}">
                   您的浏览器不支持 video 标签。
                 </video>
-                <p style="margin-top: 0.5rem; width: 300px;">${item.summary}</p>
+                <p style="margin-top: 0.5rem; max-width: 320px;">${item.summary}</p>
               </div>
             `;
           } else {
             bodyContent += `<a class="video-link" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`;
             if (item.summary) { // 如果summary不为空，则显示summary
               bodyContent += '<span class="list-item-divider" aria-hidden="true"></span>'; 
-              bodyContent += `<p style="margin-top: 0.5rem; width: 300px;">${item.summary}</p>`;
+              bodyContent += `<p style="margin-top: 0.5rem; max-width: 320;">${item.summary}</p>`;
             }
           }
           bodyContent += '</li>';
