@@ -202,7 +202,7 @@ function renderVideoDataToHTML(data) {
 
       /* 主容器，实现居中 */
       .main-container {
-        max-width: 98%;
+        max-width: 100%;
         margin: 0 auto; /* 核心：水平居中 */
         background-color: #f4f4f4;
         padding: 0.5rem;
