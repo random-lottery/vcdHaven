@@ -261,7 +261,7 @@ function renderVideoDataToHTML(data) {
         height: 12px;
         background-color: #007bff; /* 蓝色色块 */
         border-radius: 50%; /* 圆形色块 */
-        margin-right: 0.75rem;
+        margin-left: 0.75rem;
         flex-shrink: 0; /* 防止色块被压缩 */
       }
 
@@ -595,38 +595,44 @@ export default {
           return new Response(null, fixCors({ status: 200 }));
 
         case request.method === "POST" && pathname === "/savevideodetails":
-          const { url: videoUrl, snapshot, summary } = await request.json();
+          const { vId, url: videoUrl, snapshot, summary } = await request.json();
 
           // Basic validation
-          if (!videoUrl || !snapshot || !summary) {
-              throw new HttpError('Missing required fields (url, snapshot, summary).', 400);
+          if (!vId || !videoUrl || !snapshot || !summary) {
+              throw new HttpError('Missing required fields (vId, url, snapshot, summary).', 400);
           }
 
-          // Create a new video object
-          const newDetailVideo = {
-              id: nextVideoId++,
-              url: videoUrl,
-              snapshot: snapshot,
-              summary: summary
-          };
+          // Find and update the existing video
+          let detailVideoFound = false;
+          let updatedDetailVideo = null;
+          
+          videos.forEach(group => {
+              if (group.videolist && Array.isArray(group.videolist)) {
+                  group.videolist = group.videolist.map(video => {
+                      // Compare IDs as strings to handle both string and number IDs
+                      if (String(video.id) === String(vId)) {
+                          detailVideoFound = true;
+                          // Update the video with new data, preserving the ID and other fields
+                          updatedDetailVideo = {
+                              ...video,
+                              url: videoUrl,
+                              snapshot: snapshot,
+                              summary: summary,
+                              id: video.id // Preserve the original ID
+                          };
+                          return updatedDetailVideo;
+                      }
+                      return video;
+                  });
+              }
+          });
 
-          // Add the new video to the first video group
-          if (videos.length > 0 && videos[0].videolist && Array.isArray(videos[0].videolist)) {
-              videos[0].videolist.push(newDetailVideo);
-              videos[0].videocount = videos[0].videolist.length; // 更新计数
-          } else {
-              // If there are no video groups, create one
-              videos.push({
-                  videoname: "New Video Group",
-                  videointro: "A new video group",
-                  videopicture: "default.jpg",
-                  videocount: 1, // 初始计数
-                  videolist: [newDetailVideo]
-              });
+          if (!detailVideoFound) {
+              throw new HttpError(`Video with ID ${vId} not found.`, 404);
           }
 
           await saveVideos(); // 保存到 KV
-          return new Response(JSON.stringify(newDetailVideo), fixCors({ status: 201, headers: { 'Content-Type': 'application/json' } }));
+          return new Response(JSON.stringify(updatedDetailVideo), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
 
         case request.method === "POST" && pathname === "/postselecteddata":
           const selectedDataPost = await request.json();

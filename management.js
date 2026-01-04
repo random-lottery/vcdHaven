@@ -29,7 +29,7 @@ function modifyVideo() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ url: url, title: title, id:id })
+        body: JSON.stringify({ id:id, url: url, title: title, summary: summary })
     })
     .then(response => {
         if (response.ok) {
@@ -69,6 +69,7 @@ function takeSnapshot() {
 }
 
 function saveVideoDetails() {
+    const id = document.getElementById('selectedVideoId').value;
     const url = document.getElementById('url').value;
     const snapshot = document.getElementById('videoSnapshot').toDataURL('image/png');
     const summary = document.getElementById('videoSummary').value;
@@ -78,7 +79,7 @@ function saveVideoDetails() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ url: url, snapshot: snapshot, summary: summary })
+        body: JSON.stringify({id:id, url: url, snapshot: snapshot, summary: summary })
     })
     .then(response => {
         if (response.ok) {
