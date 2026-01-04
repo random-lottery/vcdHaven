@@ -269,7 +269,7 @@ function renderVideoDataToHTML(data) {
         height: 12px;
         background-color: #007bff; /* 蓝色色块 */
         border-radius: 50%; /* 圆形色块 */
-        margin-left: 0.75rem;
+        margin-right: 0.75rem;
         flex-shrink: 0; /* 防止色块被压缩 */
       }
 
@@ -286,7 +286,7 @@ function renderVideoDataToHTML(data) {
         height: 12px;
         background-color: #007bff;
         border-radius: 50%;
-        margin-right: 0.5rem;
+        margin-right: 0.75rem;
         flex-shrink: 0;
       }
 
