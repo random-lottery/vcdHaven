@@ -339,6 +339,7 @@ function renderVideoDataToHTML(data) {
             `;
           } else {
             bodyContent += `<a class="video-link" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`;
+            bodyContent += `<p>${item.summary}</p>`;
           }
           bodyContent += '</li>';
         }
