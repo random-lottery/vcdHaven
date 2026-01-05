@@ -70,6 +70,31 @@ function takeSnapshot() {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 }
 
+function compressImage(canvas, maxWidth, maxHeight, quality) {
+    // Create a temporary canvas for compression
+    const tempCanvas = document.createElement('canvas');
+    const ctx = tempCanvas.getContext('2d');
+    
+    // Calculate new dimensions maintaining aspect ratio
+    let width = canvas.width;
+    let height = canvas.height;
+    
+    if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.floor(width * ratio);
+        height = Math.floor(height * ratio);
+    }
+    
+    tempCanvas.width = width;
+    tempCanvas.height = height;
+    
+    // Draw the image scaled down
+    ctx.drawImage(canvas, 0, 0, width, height);
+    
+    // Convert to JPEG with compression (JPEG is much smaller than PNG)
+    return tempCanvas.toDataURL('image/jpeg', quality);
+}
+
 function saveVideoDetails() {
     const id = document.getElementById('selectedVideoId').value;
     const url = document.getElementById('url').value;
@@ -78,7 +103,18 @@ function saveVideoDetails() {
 
     let snapshot;
     try {
-        snapshot = canvas.toDataURL('image/png');
+        // Compress the image: max 320x240, quality 0.7 (70%)
+        // This should result in a much smaller file size (< 36KB)
+        snapshot = compressImage(canvas, 320, 240, 0.7);
+        
+        // Check if still too large (base64 is ~33% larger than binary)
+        // If snapshot is still > 30KB in base64, compress more aggressively
+        if (snapshot.length > 30000) {
+            snapshot = compressImage(canvas, 240, 180, 0.6);
+        }
+        if (snapshot.length > 30000) {
+            snapshot = compressImage(canvas, 160, 120, 0.5);
+        }
     } catch (error) {
         if (error.name === 'SecurityError' || error.message.includes('Tainted canvases')) {
             alert('Cannot export snapshot: Video is from a different origin and CORS is not properly configured. Please ensure the video server allows cross-origin requests.');
@@ -98,8 +134,13 @@ function saveVideoDetails() {
         if (response.ok) {
             alert('Video details saved successfully!');
         } else {
-            alert('Error saving video details.');
+            response.text().then(text => {
+                alert('Error saving video details: ' + text);
+            });
         }
+    })
+    .catch(error => {
+        alert('Error saving video details: ' + error.message);
     });
 }
 
