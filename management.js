@@ -59,6 +59,7 @@ function deleteVideo() {
 function previewVideo() {
     const url = document.getElementById('url').value;
     const video = document.getElementById('videoPreview');
+    video.crossOrigin = 'anonymous';
     video.src = url;
 }
 
@@ -72,8 +73,19 @@ function takeSnapshot() {
 function saveVideoDetails() {
     const id = document.getElementById('selectedVideoId').value;
     const url = document.getElementById('url').value;
-    const snapshot = document.getElementById('videoSnapshot').toDataURL('image/png');
+    const canvas = document.getElementById('videoSnapshot');
     const summary = document.getElementById('videoSummary').value;
+
+    let snapshot;
+    try {
+        snapshot = canvas.toDataURL('image/png');
+    } catch (error) {
+        if (error.name === 'SecurityError' || error.message.includes('Tainted canvases')) {
+            alert('Cannot export snapshot: Video is from a different origin and CORS is not properly configured. Please ensure the video server allows cross-origin requests.');
+            return;
+        }
+        throw error;
+    }
 
     fetch('/savevideodetails', {
         method: 'POST',
