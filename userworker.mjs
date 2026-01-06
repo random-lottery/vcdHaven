@@ -146,9 +146,9 @@ function generateToken() {
 /**
  * Get user from Authorization header
  * @param {Request} request - The request object
- * @returns {Object|null} User object or null
+ * @returns {Promise<Object|null>} User object or null
  */
-function getAuthenticatedUser(request) {
+async function getAuthenticatedUser(request) {
   const authHeader = request.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return null;
@@ -164,6 +164,7 @@ function getAuthenticatedUser(request) {
   const now = Date.now();
   if (now - session.createdAt > 24 * 60 * 60 * 1000) {
     sessions.delete(token);
+    await saveSessions();
     return null;
   }
   
@@ -225,11 +226,53 @@ async function saveUsers() {
     }
 }
 
+/**
+ * Loads session data from Deno KV.
+ */
+async function loadSessions() {
+    if (!kv) await initializeKv();
+    try {
+        const result = await kv.get(["sessions_data"]);
+        if (result.value) {
+            const sessionsData = result.value;
+            sessions.clear();
+            // Convert array of [token, session] pairs back to Map
+            for (const [token, session] of sessionsData) {
+                sessions.set(token, session);
+            }
+            console.log(`[INFO] Sessions loaded from KV. Total sessions: ${sessions.size}`);
+        } else {
+            console.warn('[WARN] No session data found in KV, initializing with empty sessions.');
+            sessions.clear();
+        }
+    } catch (err) {
+        console.error('Error loading sessions from KV:', err);
+        throw new HttpError("Failed to load session data from KV.", 500);
+    }
+}
+
+/**
+ * Saves current session data to Deno KV.
+ */
+async function saveSessions() {
+    if (!kv) await initializeKv();
+    try {
+        // Convert Map to array of [token, session] pairs for JSON serialization
+        const sessionsData = Array.from(sessions.entries());
+        await kv.set(["sessions_data"], sessionsData);
+        console.log('[INFO] Sessions saved to KV successfully.');
+    } catch (err) {
+        console.error('Error saving sessions to KV:', err);
+        throw new HttpError("Failed to save session data to KV.", 500);
+    }
+}
+
 // 模块初始化时尝试初始化 KV 并加载数据。
 (async () => {
     try {
         await initializeKv();
         await loadUsers();
+        await loadSessions();
     } catch (e) {
         console.error("[CRITICAL] Initial KV setup or data load failed:", e.message);
     }
@@ -404,6 +447,7 @@ export default {
             },
             createdAt: Date.now()
           });
+          await saveSessions();
 
           // Return token and user info
           const { password_hash: _, ...userInfo } = user;
@@ -433,6 +477,7 @@ export default {
           if (authHeader && authHeader.startsWith("Bearer ")) {
             const token = authHeader.substring(7);
             sessions.delete(token);
+            await saveSessions();
           }
           return new Response(
             JSON.stringify({ message: "Sign out successful" }), 
@@ -445,7 +490,7 @@ export default {
         // Get Current User (Authorization required)
         case request.method === "GET" && pathname === "/me":
         case request.method === "GET" && pathname === "/user/me":
-          const currentUser = getAuthenticatedUser(request);
+          const currentUser = await getAuthenticatedUser(request);
           if (!currentUser) {
             throw new HttpError("Unauthorized", 401);
           }
@@ -467,7 +512,7 @@ export default {
 
         // Get All Users (Admin only)
         case request.method === "GET" && pathname === "/users":
-          const adminUser = getAuthenticatedUser(request);
+          const adminUser = await getAuthenticatedUser(request);
           if (!adminUser) {
             throw new HttpError("Unauthorized", 401);
           }
@@ -491,7 +536,7 @@ export default {
 
         // Update User Profile (Authorization required)
         case request.method === "PUT" && pathname === "/user/profile":
-          const profileUser = getAuthenticatedUser(request);
+          const profileUser = await getAuthenticatedUser(request);
           if (!profileUser) {
             throw new HttpError("Unauthorized", 401);
           }
@@ -526,7 +571,7 @@ export default {
 
         // Change Password (Authorization required)
         case request.method === "POST" && pathname === "/user/change-password":
-          const passwordUser = getAuthenticatedUser(request);
+          const passwordUser = await getAuthenticatedUser(request);
           if (!passwordUser) {
             throw new HttpError("Unauthorized", 401);
           }
