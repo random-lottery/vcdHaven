@@ -2,11 +2,42 @@
 let currentUser = null;
 let authToken = null;
 
+// Cookie helpers for dual storage (cookie + localStorage)
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
+}
+
+function setAuth(token, user) {
+    authToken = token;
+    currentUser = user;
+    // Persist to localStorage
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    // Persist to cookie (7 days)
+    document.cookie = `authToken=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax`;
+    document.cookie = `currentUser=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=604800; SameSite=Lax`;
+}
+
+function clearAuth() {
+    authToken = null;
+    currentUser = null;
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    document.cookie = 'authToken=; path=/; max-age=0; SameSite=Lax';
+    document.cookie = 'currentUser=; path=/; max-age=0; SameSite=Lax';
+}
+
 // Initialize authentication on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Load saved token from localStorage
-    authToken = localStorage.getItem('authToken');
-    currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    // Load saved token from localStorage first, then fallback to cookie
+    authToken = localStorage.getItem('authToken') || getCookie('authToken');
+    const storedUser = localStorage.getItem('currentUser') || getCookie('currentUser');
+    try {
+        currentUser = storedUser ? JSON.parse(storedUser) : null;
+    } catch (_) {
+        currentUser = null;
+    }
     
     updateUI();
     setupEventListeners();
@@ -93,10 +124,7 @@ function setupEventListeners() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    authToken = data.token;
-                    currentUser = data.user;
-                    localStorage.setItem('authToken', authToken);
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    setAuth(data.token, data.user);
                     
                     signinModal.classList.add('hidden');
                     signinForm.reset();
@@ -219,10 +247,7 @@ async function signOut() {
         console.error('Sign out error:', error);
     }
 
-    authToken = null;
-    currentUser = null;
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
+    clearAuth();
     
     updateUI();
     showNotification('已退出登录', 'info');
