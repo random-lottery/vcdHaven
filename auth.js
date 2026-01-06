@@ -15,8 +15,8 @@ function setAuth(token, user) {
     localStorage.setItem('authToken', token);
     localStorage.setItem('currentUser', JSON.stringify(user));
     // Persist to cookie (7 days)
-    document.cookie = `authToken=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax`;
-    document.cookie = `currentUser=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=604800; SameSite=Lax`;
+    //document.cookie = `authToken=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax`;
+    //document.cookie = `currentUser=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=604800; SameSite=Lax`;
 }
 
 function clearAuth() {
