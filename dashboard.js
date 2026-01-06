@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', async function() {
     // Check if user is authenticated
     if (!window.auth || !window.auth.isAuthenticated()) {
-        window.location.href = 'index.html';
+        //window.location.href = 'index.html';
         return;
     }
 
