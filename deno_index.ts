@@ -101,6 +101,23 @@ async function handleLocalRequest(req: Request): Promise<Response> {
   }
 }
 
+async function handleUserRequest(req: Request): Promise<Response> {
+  try {
+    const userworker = await import('./userworker.mjs');
+    return await userworker.default.fetch(req);
+  } catch (error) {
+    console.error('User request error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const errorStatus = (error as { status?: number }).status || 500;
+    return new Response(errorMessage, {
+      status: errorStatus,
+      headers: {
+        'content-type': 'text/plain;charset=UTF-8',
+      }
+    });
+  }
+}
+
 async function handleRequest(req: Request): Promise<Response> {
   const url = new URL(req.url);
   console.log('Request URL:', req.url);
@@ -129,6 +146,20 @@ async function handleRequest(req: Request): Promise<Response> {
       url.pathname.endsWith("/postselecteddata") ||
       url.pathname.endsWith("/saveselecteddata")) {
     return handleLocalRequest(req);
+  }
+
+  // User authentication endpoints
+  if (url.pathname === "/register" ||
+      url.pathname === "/signin" ||
+      url.pathname === "/login" ||
+      url.pathname === "/signout" ||
+      url.pathname === "/logout" ||
+      url.pathname === "/me" ||
+      url.pathname === "/user/me" ||
+      url.pathname === "/users" ||
+      url.pathname === "/user/profile" ||
+      url.pathname === "/user/change-password") {
+    return handleUserRequest(req);
   }
 
   // 静态文件处理
