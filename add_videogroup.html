@@ -1,11 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Video Group</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <h1>Add Video Group</h1>
+<body class="bg-gray-100">
+    <nav class="bg-gray-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-white font-bold text-xl">VCDHaven</span>
+                </div>
+                <div class="hidden md:flex md:items-center md:space-x-4">
+                    <a href="videopage.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-play-circle mr-2"></i>播放视频
+                    </a>
+                    <a href="management.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-th-list mr-2"></i>管理视频
+                    </a>
+                    <a href="add_videogroup.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-plus-circle mr-2"></i>添加视频组
+                    </a>
+                    <a href="move_video.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-arrows mr-2"></i>移动视频
+                    </a>
+                    <a href="storage_manager.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-hdd mr-2"></i>存储管理
+                    </a>
+                    <a href="clock24.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                        <i class="fa fa-clock-four mr-2"></i>全球时区时钟
+                    </a>
+                    <!-- User Authentication Section -->
+                    <div id="user-auth-section" class="flex items-center space-x-2">
+                        <span id="user-name" class="text-gray-300 text-sm hidden"></span>
+                        <a href="dashboard.html" id="dashboard-link" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out hidden">
+                            <i class="fa fa-user-circle mr-2"></i>仪表板
+                        </a>
+                        <button id="signin-btn" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                            <i class="fa fa-sign-in-alt mr-2"></i>登录
+                        </button>
+                        <button id="signup-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                            <i class="fa fa-user-plus mr-2"></i>注册
+                        </button>
+                        <button id="signout-btn" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out hidden">
+                            <i class="fa fa-sign-out-alt mr-2"></i>退出
+                        </button>
+                    </div>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button type="button" class="text-gray-300 hover:text-white focus:outline-none" id="mobile-menu-button">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="hidden md:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="videopage.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-play-circle mr-2"></i>播放视频
+                </a>
+                <a href="management.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-th-list mr-2"></i>管理视频
+                </a>
+                <a href="add_videogroup.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-plus-circle mr-2"></i>添加视频组
+                </a>
+                <a href="move_video.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-arrows mr-2"></i>移动视频
+                </a>
+                <a href="storage_manager.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-hdd mr-2"></i>存储管理
+                </a>
+                <a href="clock24.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fa fa-clock-four mr-2"></i>全球时区时钟
+                </a>
+                <!-- Mobile User Authentication Section -->
+                <div id="mobile-user-auth" class="border-t border-gray-700 pt-2 mt-2">
+                    <a href="dashboard.html" id="mobile-dashboard-link" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium hidden">
+                        <i class="fa fa-user-circle mr-2"></i>仪表板
+                    </a>
+                    <button id="mobile-signin-btn" class="text-gray-300 hover:text-white block w-full text-left px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fa fa-sign-in-alt mr-2"></i>登录
+                    </button>
+                    <button id="mobile-signup-btn" class="text-gray-300 hover:text-white block w-full text-left px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fa fa-user-plus mr-2"></i>注册
+                    </button>
+                    <button id="mobile-signout-btn" class="text-gray-300 hover:text-white block w-full text-left px-3 py-2 rounded-md text-base font-medium hidden">
+                        <i class="fa fa-sign-out-alt mr-2"></i>退出
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Add Video Group</h1>
 
     <h2>Existing Video Groups</h2>
     <div id="existingVideoGroups">
@@ -31,6 +124,17 @@
 
     <button type="button" onclick="submitSelectedVideos()">Create Video Group</button>
 
+    </div>
+    <script src="auth.js"></script>
     <script src="add_videogroup.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

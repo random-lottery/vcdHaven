@@ -12,7 +12,7 @@
     <nav class="w-full bg-gray-800 text-white shadow-lg sticky top-0 z-50 font-sans">
         <div class="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
             <div class="text-2xl font-bold tracking-wider text-pink-300">vcdHaven</div>
-            <ul class="flex space-x-6 m-0 p-0">
+            <ul class="hidden md:flex space-x-6 m-0 p-0">
                 <li class="inline-block">
                     <a href="index.html" class="text-white no-underline text-base px-4 py-2 rounded transition-colors duration-200 hover:bg-pink-300 hover:text-gray-800">
                         <i class="fa fa-home mr-2"></i>首页
@@ -34,6 +34,29 @@
                     </a>
                 </li>
             </ul>
+            <!-- Mobile menu button -->
+            <div class="md:hidden flex items-center">
+                <button type="button" class="text-white focus:outline-none focus:text-pink-300" id="mobile-menu-button">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="hidden md:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="index.html" class="text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-pink-300 hover:text-gray-800 transition-colors duration-200">
+                    <i class="fa fa-home mr-2"></i>首页
+                </a>
+                <a href="videopage.html" class="text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-pink-300 hover:text-gray-800 transition-colors duration-200">
+                    <i class="fa fa-play-circle mr-2"></i>播放视频
+                </a>
+                <a href="management.html" class="text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-pink-300 hover:text-gray-800 transition-colors duration-200">
+                    <i class="fa fa-th-list mr-2"></i>管理视频
+                </a>
+                <a href="dashboard.html" class="text-white block px-3 py-2 rounded-md text-base font-medium bg-pink-300 text-gray-800">
+                    <i class="fa fa-user-circle mr-2"></i>仪表板
+                </a>
+            </div>
         </div>
     </nav>
 
@@ -186,6 +209,19 @@
 
     <script src="auth.js"></script>
     <script src="dashboard.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 
