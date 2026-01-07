@@ -991,7 +991,12 @@
                     isLoading.value = true;
                     try {
                         const response = await new Promise(resolve => setTimeout(() => {
-                            const mockDownloadedData = JSON.parse(fetch('/mockdata'));
+                            let mockDownloadedData;
+                            fetch('/mockdata')
+                            .then(response => response.json())
+                            .then(mockData => {
+                                const mockDownloadedData = JSON.parse(mockData);
+                            });
                             const currentLocalData = getAssetKv();
                             if (currentLocalData.length === 0) {
                                 currentLocalData.push({ "序号": 1, "资产编号": "A0142000118", "业务编码": "G011", "固定资产描述": "旧工作站", "型号财务": "HP Pro", "卡片所在地": "IT部", "实际所在地": "办公室", "领用人": "张三", "主机": true, "显示器": true, "笔记本": false, "闲置": false, "缩略图": "" });
