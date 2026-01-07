@@ -991,12 +991,11 @@
                     isLoading.value = true;
                     try {
                         const response = await new Promise(resolve => setTimeout(() => {
-                            let mockDownloadedData;
                             fetch('/mockdata')
                             .then(response => response.json())
                             .then(mockData => {
-                                const mockDownloadedData = mockData;
-                                const { mergedData, newNextSequence } = mergeAssetData(assetData.value, mockdownloadedData, nextSequence.value);
+                                const DownloadedData = mockData;
+                                const { mergedData, newNextSequence } = mergeAssetData(assetData.value, downloadedData, nextSequence.value);
                                 assetData.value = mergedData;
                                 nextSequence.value = newNextSequence;
                                 setAssetKv(assetData.value);
