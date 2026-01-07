@@ -712,7 +712,7 @@
             setup() {
                 // --- 配置项 ---
                 const LOCAL_STORAGE_KEY = 'asset_editor_data';
-                const ENDPOINT_URL = 'https://api.example.com/assets'; // 模拟的 endpoint URL
+                const ENDPOINT_URL = 'https://vcdhaven.deno.dev/assets'; // 模拟的 endpoint URL
 
                 // --- 状态管理 ---
                 const { data: assetData, setKv: setAssetKv, getKv: getAssetKv } = useLocalStorage(LOCAL_STORAGE_KEY, []);
@@ -991,11 +991,7 @@
                     isLoading.value = true;
                     try {
                         const response = await new Promise(resolve => setTimeout(() => {
-                            const mockDownloadedData = [
-                                { "序号": 101, "资产编号": "A0142000118", "业务编码": "G012", "固定资产描述": "更新后的工作站", "型号财务": "Dell XPS", "主机": true, "显示器": true, "笔记本": false, "闲置": false, "缩略图": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" },
-                                { "序号": 102, "资产编号": "B0012000119", "业务编码": "G013", "固定资产描述": "新服务器", "型号财务": "HP ProLiant", "主机": true, "显示器": false, "笔记本": false, "闲置": false, "缩略图": null },
-                                { "序号": 1, "资产编号": "C0012000120", "业务编码": "G014", "固定资产描述": "又一个新设备", "型号财务": "Custom", "主机": false, "显示器": false, "笔记本": false, "闲置": true, "缩略图": null },
-                            ];
+                            const mockDownloadedData = fetch('/mockdata');
                             const currentLocalData = getAssetKv();
                             if (currentLocalData.length === 0) {
                                 currentLocalData.push({ "序号": 1, "资产编号": "A0142000118", "业务编码": "G011", "固定资产描述": "旧工作站", "型号财务": "HP Pro", "卡片所在地": "IT部", "实际所在地": "办公室", "领用人": "张三", "主机": true, "显示器": true, "笔记本": false, "闲置": false, "缩略图": "" });
@@ -1004,7 +1000,6 @@
                             }
                             resolve({ ok: true, json: () => Promise.resolve(mockDownloadedData) });
                         }, 1000));
-
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
                         }
@@ -1033,7 +1028,21 @@
                     isUploading.value = true;
                     try {
                         const response = await new Promise(resolve => setTimeout(() => {
-                            console.log(`模拟上传 ${type} 数据到 ${ENDPOINT_URL}:`, dataToUpload);
+                            fetch('/postselecteddata', {
+                                    method: 'POST',
+                                    headers: {
+                                     'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(dataToUpload)
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    alert('Data posted successfully!');
+                                } else {
+                                    alert('Error posting data.');
+                                }
+                            });
+                            console.log(`上传 ${type} 数据到 ${ENDPOINT_URL}:`, dataToUpload);
                             resolve({ ok: true, status: 200, json: () => Promise.resolve({ message: `${type} 数据上传成功！` }) });
                         }, 1500));
 
