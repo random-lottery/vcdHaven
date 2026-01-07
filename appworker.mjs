@@ -454,7 +454,7 @@ export default {
           return new Response(JSON.stringify(allVideos), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
 
         case request.method === "GET" && pathname === "/mockdata":
-          return new Response(JSON.stringify(storagedata), fixCors({ status: 200, headers: { 'Content-Type': 'application/json' } }));
+          return new Response(JSON.stringify(storagedata), fixCors({ status: 200, headers: { 'Content-Type': 'application/json;charset=UTF-8' } }));
 
         case request.method === "GET" && pathname === "/plain":
           return new Response(renderVideoDataToHTML(videos), fixCors({ status: 200, headers: { 'Content-Type': 'text/html;charset=UTF-8' } }));
