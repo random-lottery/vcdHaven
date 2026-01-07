@@ -712,7 +712,7 @@
             setup() {
                 // --- 配置项 ---
                 const LOCAL_STORAGE_KEY = 'asset_editor_data';
-                const ENDPOINT_URL = 'https://vcdhaven.deno.dev/assets'; // 模拟的 endpoint URL
+                const ENDPOINT_URL = 'https://vcdhaven.deno.dev/send'; // 模拟的 endpoint URL
 
                 // --- 状态管理 ---
                 const { data: assetData, setKv: setAssetKv, getKv: getAssetKv } = useLocalStorage(LOCAL_STORAGE_KEY, []);
