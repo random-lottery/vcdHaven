@@ -996,6 +996,12 @@
                             .then(response => response.json())
                             .then(mockData => {
                                 const mockDownloadedData = JSON.parse(mockData);
+                                const { mergedData, newNextSequence } = mergeAssetData(assetData.value, mockdownloadedData, nextSequence.value);
+                                assetData.value = mergedData;
+                                nextSequence.value = newNextSequence;
+                                setAssetKv(assetData.value);
+                                selectedAssetIds.value = [];
+                                showNotification('数据已从服务端下载并合并。', 'success');                                
                             });
                             const currentLocalData = getAssetKv();
                             if (currentLocalData.length === 0) {
@@ -1008,15 +1014,6 @@
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
                         }
-                        const downloadedData = await response.json();
-
-                        const { mergedData, newNextSequence } = mergeAssetData(assetData.value, downloadedData, nextSequence.value);
-                        assetData.value = mergedData;
-                        nextSequence.value = newNextSequence;
-                        setAssetKv(assetData.value);
-                        selectedAssetIds.value = [];
-                        showNotification('数据已从服务端下载并合并。', 'success');
-
                     } catch (error) {
                         showNotification(`从服务端下载数据失败: ${error.message}`, 'error');
                     } finally {
