@@ -1001,16 +1001,16 @@
                                 nextSequence.value = newNextSequence;
                                 setAssetKv(assetData.value);
                                 selectedAssetIds.value = [];
-                                showNotification('数据已从服务端下载并合并。', 'success');                                
+                                showNotification('数据已从服务端下载并合并。', 'success');
+                                const currentLocalData = getAssetKv();
+                                if (currentLocalData.length === 0) {
+                                    currentLocalData.push({ "序号": 1, "资产编号": "A0142000118", "业务编码": "G011", "固定资产描述": "旧工作站", "型号财务": "HP Pro", "卡片所在地": "IT部", "实际所在地": "办公室", "领用人": "张三", "主机": true, "显示器": true, "笔记本": false, "闲置": false, "缩略图": "" });
+                                    setAssetKv(currentLocalData);
+                                    assetData.value = currentLocalData;
+                                }                                
                             });
-                            const currentLocalData = getAssetKv();
-                            if (currentLocalData.length === 0) {
-                                currentLocalData.push({ "序号": 1, "资产编号": "A0142000118", "业务编码": "G011", "固定资产描述": "旧工作站", "型号财务": "HP Pro", "卡片所在地": "IT部", "实际所在地": "办公室", "领用人": "张三", "主机": true, "显示器": true, "笔记本": false, "闲置": false, "缩略图": "" });
-                                setAssetKv(currentLocalData);
-                                assetData.value = currentLocalData;
-                            }
                             resolve({ ok: true, json: () => Promise.resolve(mockDownloadedData) });
-                        }, 1000));
+                        }, 5000));
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
                         }
