@@ -994,7 +994,7 @@
                             fetch('/mockdata')
                             .then(response => response.json())
                             .then(mockData => {
-                                const DownloadedData = mockData;
+                                const downloadedData = mockData;
                                 const { mergedData, newNextSequence } = mergeAssetData(assetData.value, downloadedData, nextSequence.value);
                                 assetData.value = mergedData;
                                 nextSequence.value = newNextSequence;
