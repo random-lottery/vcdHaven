@@ -994,8 +994,7 @@
                             fetch('/mockdata')
                             .then(response => response.json())
                             .then(mockData => {
-                                const downloadedData = mockData;
-                                const { mergedData, newNextSequence } = mergeAssetData(assetData.value, downloadedData, nextSequence.value);
+                                const { mergedData, newNextSequence } = mergeAssetData(assetData.value, mockData, nextSequence.value);
                                 assetData.value = mergedData;
                                 nextSequence.value = newNextSequence;
                                 setAssetKv(assetData.value);
@@ -1006,10 +1005,10 @@
                                     currentLocalData.push({ "序号": 1, "资产编号": "A0142000118", "业务编码": "G011", "固定资产描述": "旧工作站", "型号财务": "HP Pro", "卡片所在地": "IT部", "实际所在地": "办公室", "领用人": "张三", "主机": true, "显示器": true, "笔记本": false, "闲置": false, "缩略图": "" });
                                     setAssetKv(currentLocalData);
                                     assetData.value = currentLocalData;
+                                    resolve({ ok: true, json: () => Promise.resolve(mockData) });  
                                 }                                
                             });
-                            resolve({ ok: true, json: () => Promise.resolve(mockDownloadedData) });
-                        }, 5000));
+                        }, 1000));
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
                         }
