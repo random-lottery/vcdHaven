@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产数据编辑器 - 单文件增强版 (含Excel导出)</title>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 jsQR 用于二维码识别 -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.0.0/dist/jsQR.min.js"></script>
+    <!-- 引入 Tesseract.js 用于 OCR 识别 -->
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js'></script>
+    <!-- 引入 SheetJS (XLSX) 用于 Excel 导出 -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script> <!-- 确保使用最新稳定版 -->
+
+    <style>
+        /* 全局样式和 Tailwind 基础 */
+        body {
+            font-family: Arial, sans-serif;
+            @apply bg-gray-100 text-gray-800;
+        }
+
+        /* Vue 过渡动画 */
+        .fade-enter-active, .fade-leave-active {
+          transition: opacity 0.3s ease;
+        }
+        .fade-enter-from, .fade-leave-to {
+          opacity: 0;
+        }
+
+        /* 动画用于 Notification */
+        @keyframes fade-in-down {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-down {
+          animation: fade-in-down 0.3s ease-out;
+        }
+
+        /* 表格 input 样式微调，解决 Tailwind 默认 input 样式可能不完整的问题 */
+        .table-input {
+            @apply border border-gray-300 rounded-md px-2 py-1 text-sm w-full;
+        }
+        .table-checkbox {
+            @apply form-checkbox h-4 w-4 text-blue-600 rounded;
+        }
+
+        /* 模态框背景 */
+        .modal-overlay {
+            @apply fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50;
+        }
+        .modal-content {
+            @apply bg-white rounded-lg shadow-xl p-6 relative w-full max-w-2xl mx-auto;
+        }
+        /* 视频流样式 */
+        video {
+            @apply w-full border border-gray-300 rounded-md;
+            max-height: 500px; /* 限制视频最大高度 */
+            object-fit: cover;
+        }
+        canvas {
+            @apply w-full border border-gray-300 rounded-md mt-4;
+            display: none; /* 默认隐藏 canvas */
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <!-- 引入 Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script type="module">
+        const { createApp, ref, computed, watch, onMounted, watchEffect, nextTick } = Vue;
+
+        // --- composables/useLocalStorage.js (集成到这里) ---
+        /**
+         * Vue Composable for persisting state in localStorage, mimicking Deno KV behavior.
+         * @param {string} key - The key for localStorage.
+         * @param {*} defaultValue - The default value if not found in localStorage.
+         * @returns {Object} An object with a reactive ref and set/get functions.
+         */
+        function useLocalStorage(key, defaultValue) {
+            const data = ref(defaultValue);
+
+            // Load initial value from localStorage on component mount
+            onMounted(() => {
+                try {
+                    const storedValue = localStorage.getItem(key);
+                    if (storedValue !== null) {
+                        data.value = JSON.parse(storedValue);
+                    } else {
+                        // If not found, save the default value
+                        localStorage.setItem(key, JSON.stringify(defaultValue));
+                    }
+                } catch (e) {
+                    console.error(`Error loading from localStorage for key "${key}":`, e);
+                    data.value = defaultValue;
+                }
+            });
+
+            // Watch for changes and save to localStorage
+            watch(data, (newValue) => {
+                try {
+                    localStorage.setItem(key, JSON.stringify(newValue));
+                } catch (e) {
+                    console.error(`Error saving to localStorage for key "${key}":`, e);
+                }
+            }, { deep: true }); // Deep watch for array/object changes
+
+            /**
+             * Manually sets the value in localStorage and updates the reactive ref.
+             * Mimics `kv.set()`.
+             * @param {*} value - The value to set.
+             */
+            const setKv = (value) => {
+                data.value = value;
+            };
+
+            /**
+             * Manually gets the value from localStorage.
+             * Mimics `kv.get()`.
+             * @returns {*} The value from localStorage.
+             */
+            const getKv = () => {
+                try {
+                    const storedValue = localStorage.getItem(key);
+                    return storedValue !== null ? JSON.parse(storedValue) : defaultValue;
+                } catch (e) {
+                    console.error(`Error getting from localStorage for key "${key}":`, e);
+                    return defaultValue;
+                }
+            };
+
+            return {
+                data,
+                setKv,
+                getKv
+            };
+        }
+
+        // --- utils/dataUtils.js (集成到这里) ---
+        /**
+         * Merges downloaded data into existing local data based on '资产编号'.
+         * If an item with the same '资产编号' exists, it's updated. Otherwise, it's added.
+         * New items will be assigned a new '序号'.
+         *
+         * @param {Array<Object>} localData - The current data in local storage.
+         * @param {Array<Object>} downloadedData - The data downloaded from the endpoint.
+         * @param {number} currentNextSequence - The next available sequence number.
+         * @returns {{mergedData: Array<Object>, newNextSequence: number}} The merged data and the updated next sequence number.
+         */
+        function mergeAssetData(localData, downloadedData, currentNextSequence) {
+            const localDataMap = new Map(localData.map(item => [item['资产编号'], item]));
+            let maxSequence = currentNextSequence;
+            const newItems = []; // 用于存储新增的项
+
+            // 过滤掉下载数据中资产编号为空或无效的项
+            downloadedData = downloadedData.filter(item => item['资产编号'] && typeof item['资产编号'] === 'string' && item['资产编号'].trim() !== '');
+
+            downloadedData.forEach(downloadedItem => {
+                if (downloadedItem['资产编号']) {
+                    if (localDataMap.has(downloadedItem['资产编号'])) {
+                        const existingItem = localDataMap.get(downloadedItem['资产编号']);
+                        Object.assign(existingItem, downloadedItem);
+                        existingItem['序号'] = parseInt(existingItem['序号']) || 0;
+                        if (existingItem['序号'] > maxSequence) {
+                            maxSequence = existingItem['序号'];
+                        }
+                    } else {
+                        newItems.push(downloadedItem);
+                    }
+                }
+            });
+
+            newItems.forEach(item => {
+                item['序号'] = maxSequence++;
+                localData.push(item);
+            });
+
+            localData.sort((a, b) => (parseInt(a['序号']) || 0) - (parseInt(b['序号']) || 0));
+
+            maxSequence = Math.max(...localData.map(item => parseInt(item['序号']) || 0), maxSequence) + 1;
+
+            return { mergedData: localData, newNextSequence: maxSequence };
+        }
+
+        /**
+         * Generates a unique asset ID for new items.
+         * For a real application, this should be generated by a backend or a UUID.
+         * @returns {string} A new unique asset ID.
+         */
+        function generateUniqueAssetId() {
+            return `A${Date.now().toString().slice(-10)}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+        }
+
+        /**
+         * Finds the maximum '序号' in the given data.
+         * @param {Array<Object>} data - The data array.
+         * @returns {number} The maximum '序号' + 1, or 1 if no data.
+         */
+        function findNextSequence(data) {
+            if (!data || data.length === 0) {
+                return 1;
+            }
+            const max = Math.max(...data.map(item => parseInt(item['序号']) || 0));
+            return max + 1;
+        }
+
+        // --- components/Notification.vue (集成到这里) ---
+        const Notification = {
+            props: {
+                message: String,
+                type: {
+                    type: String,
+                    default: 'info', // 'info', 'success', 'error', 'warning'
+                },
+                duration: {
+                    type: Number,
+                    default: 3000, // 自动关闭时间（毫秒）
+                },
+            },
+            emits: ['clear'],
+            setup(props, { emit }) {
+                watchEffect(() => {
+                    if (props.message) {
+                        const timer = setTimeout(() => {
+                            emit('clear');
+                        }, props.duration);
+                        return () => clearTimeout(timer); // 清除计时器以避免内存泄漏
+                    }
+                });
+
+                const bgColorClass = computed(() => ({
+                    info: 'bg-blue-500',
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    warning: 'bg-yellow-500',
+                }[props.type]));
+
+                const textColorClass = 'text-white';
+
+                return {
+                    bgColorClass,
+                    textColorClass,
+                    emit
+                };
+            },
+            template: `
+                <Transition name="fade">
+                    <div
+                        v-if="message"
+                        :class="[
+                            'fixed top-4 right-4 p-4 rounded-lg shadow-xl z-50 transition-transform duration-300 transform',
+                            bgColorClass,
+                            textColorClass,
+                            'animate-fade-in-down'
+                        ]"
+                        role="alert"
+                    >
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 mr-2">
+                                <svg v-if="type === 'success'" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <svg v-else-if="type === 'error'" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                                <svg v-else class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            </div>
+                            <span>{{ message }}</span>
+                            <button @click="emit('clear')" class="ml-auto -mr-1 -my-1 p-1 rounded-md hover:bg-opacity-50 focus:outline-none">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </Transition>
+            `
+        };
+
+        // --- components/ControlPanel.vue (集成到这里) ---
+        const ControlPanel = {
+            props: {
+                hasSelectedItems: Boolean,
+                hasData: Boolean,
+                endpointUrl: String,
+                isLoading: Boolean,
+                isUploading: Boolean,
+            },
+            emits: [
+                'loadData',
+                'saveData',
+                'downloadData',
+                'uploadSelected',
+                'uploadAll',
+                'exportExcel', // 新增 exportExcel 事件
+            ],
+            setup(props, { emit }) {
+                const confirmAndEmit = (event, message) => {
+                    if (confirm(message)) {
+                        emit(event);
+                    }
+                };
+                return {
+                    confirmAndEmit,
+                    emit
+                };
+            },
+            template: `
+                <div class="bg-white p-4 rounded-lg shadow-md mb-6 flex flex-wrap gap-4 items-center">
+                    <div class="flex gap-2">
+                        <button
+                            @click="emit('loadData')"
+                            :disabled="isLoading || isUploading"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span v-if="isLoading">加载中...</span>
+                            <span v-else>从本地加载</span>
+                        </button>
+                        <button
+                            @click="confirmAndEmit('saveData', '确定要将当前数据保存到本地存储吗？')"
+                            :disabled="!hasData || isLoading || isUploading"
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            保存到本地
+                        </button>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button
+                            @click="emit('downloadData')"
+                            :disabled="isLoading || isUploading"
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span v-if="isLoading">下载中...</span>
+                            <span v-else>从服务端下载并合并</span>
+                        </button>
+                        <button
+                            @click="confirmAndEmit('uploadSelected', '确定要上传选中的 ' + (hasSelectedItems ? '资产' : '0个资产') + ' 到服务端吗？')"
+                            :disabled="!hasSelectedItems || isLoading || isUploading"
+                            class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span v-if="isUploading">上传中...</span>
+                            <span v-else>上传选中</span>
+                        </button>
+                        <button
+                            @click="confirmAndEmit('uploadAll', '确定要上传所有资产到服务端吗？此操作将上传所有可见数据。')"
+                            :disabled="!hasData || isLoading || isUploading"
+                            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span v-if="isUploading">上传中...</span>
+                            <span v-else>上传所有</span>
+                        </button>
+                    </div>
+                    <!-- 新增导出 Excel 按钮 -->
+                    <div class="flex gap-2 ml-4">
+                        <button
+                            @click="emit('exportExcel')"
+                            :disabled="!hasData || isLoading || isUploading"
+                            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            导出Excel
+                        </button>
+                    </div>
+                    <div class="flex-grow text-right text-gray-600 text-sm">
+                        服务端地址: <span class="font-mono text-gray-700">{{ endpointUrl }}</span>
+                    </div>
+                </div>
+            `
+        };
+
+        // --- components/DataTable.vue (集成到这里) ---
+        const DataTable = {
+            props: {
+                data: {
+                    type: Array,
+                    default: () => [],
+                },
+                selectedAssetIds: {
+                    type: Array,
+                    default: () => [],
+                },
+            },
+            emits: [
+                'update:data',
+                'update:selectedAssetIds',
+                'deleteItem',
+                'addEmptyItem',
+                'openScanner', // 打开扫描器的事件
+                'openOcrCapture', // 打开 OCR 拍照的事件
+                'handleImageUpload', // 处理图片上传的事件
+            ],
+            setup(props, { emit }) {
+                const editingRowId = ref(null);
+                const editingItem = ref({});
+                const thumbnailFileInput = ref(null); // 用于引用文件输入框
+
+                // 选择项逻辑
+                const allSelected = computed({
+                    get: () => props.data.length > 0 && props.selectedAssetIds.length === props.data.length,
+                    set: (value) => {
+                        if (value) {
+                            emit('update:selectedAssetIds', props.data.map(item => item['资产编号']));
+                        } else {
+                            emit('update:selectedAssetIds', []);
+                        }
+                    },
+                });
+
+                const isItemSelected = (assetId) => props.selectedAssetIds.includes(assetId);
+
+                const toggleItemSelection = (assetId) => {
+                    const newSelection = new Set(props.selectedAssetIds);
+                    if (newSelection.has(assetId)) {
+                        newSelection.delete(assetId);
+                    } else {
+                        newSelection.add(assetId);
+                    }
+                    emit('update:selectedAssetIds', Array.from(newSelection));
+                };
+
+                // 编辑逻辑
+                const startEditing = (item) => {
+                    editingRowId.value = item['资产编号'];
+                    editingItem.value = { ...item };
+                };
+
+                const cancelEditing = () => {
+                    editingRowId.value = null;
+                    editingItem.value = {};
+                };
+
+                const saveEditing = () => {
+                    const updatedData = props.data.map(item =>
+                        item['资产编号'] === editingRowId.value ? editingItem.value : item
+                    );
+                    emit('update:data', updatedData);
+                    cancelEditing();
+                };
+
+                const getColumnKeys = computed(() => {
+                    if (props.data.length === 0) {
+                        return [
+                            "序号", "资产编号", "业务编码", "固定资产描述", "型号财务",
+                            "卡片所在地", "实际所在地", "领用人", "主机", "显示器", "笔记本", "闲置", "缩略图"
+                        ];
+                    }
+                    const allKeys = new Set();
+                    props.data.forEach(item => {
+                        Object.keys(item).forEach(key => allKeys.add(key));
+                    });
+                    const sortedKeys = Array.from(allKeys).sort((a, b) => {
+                        if (a === '序号') return -1;
+                        if (b === '序号') return 1;
+                        if (a === '资产编号') return -1;
+                        if (b === '资产编号') return 1;
+                        return a.localeCompare(b);
+                    });
+                    return sortedKeys;
+                });
+
+                // 删除逻辑
+                const handleDelete = (assetId) => {
+                    if (confirm(`确定要删除资产编号为 "${assetId}" 的项目吗？`)) {
+                        emit('deleteItem', assetId);
+                    }
+                };
+
+                // 图片上传相关
+                const triggerFileInput = () => {
+                    thumbnailFileInput.value.click();
+                };
+
+                const onFileChange = (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        emit('handleImageUpload', file, editingRowId.value);
+                        event.target.value = '';
+                    }
+                };
+
+
+                return {
+                    editingRowId,
+                    editingItem,
+                    allSelected,
+                    isItemSelected,
+                    toggleItemSelection,
+                    startEditing,
+                    cancelEditing,
+                    saveEditing,
+                    getColumnKeys,
+                    handleDelete,
+                    thumbnailFileInput,
+                    triggerFileInput,
+                    onFileChange,
+                    emit
+                };
+            },
+            template: `
+                <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-gray-700">资产列表</h2>
+                        <button
+                            @click="emit('addEmptyItem')"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        >
+                            新增资产
+                        </button>
+                    </div>
+
+                    <table class="min-w-full divide-y divide-gray-200 border border-gray-300">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+                                    <input type="checkbox" v-model="allSelected" class="table-checkbox" />
+                                </th>
+                                <th
+                                    v-for="key in getColumnKeys"
+                                    :key="key"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                                >
+                                    {{ key }}
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap w-24">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr v-if="data.length === 0">
+                                <td :colspan="getColumnKeys.length + 2" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
+                                    暂无数据。点击 "新增资产" 或 "从服务端下载" 获取数据。
+                                </td>
+                            </tr>
+                            <tr v-for="item in data" :key="item['资产编号']" :class="{'bg-blue-50/50': isItemSelected(item['资产编号'])}">
+                                <td class="px-2 py-4 whitespace-nowrap">
+                                    <input
+                                        type="checkbox"
+                                        :checked="isItemSelected(item['资产编号'])"
+                                        @change="toggleItemSelection(item['资产编号'])"
+                                        class="table-checkbox"
+                                    />
+                                </td>
+                                <template v-if="editingRowId === item['资产编号']">
+                                    <td v-for="key in getColumnKeys" :key="key" class="px-6 py-2 whitespace-nowrap">
+                                        <template v-if="key === '资产编号'">
+                                            <div class="flex items-center space-x-2">
+                                                <input
+                                                    type="text"
+                                                    v-model="editingItem[key]"
+                                                    :placeholder="key"
+                                                    class="table-input"
+                                                    readonly
+                                                    :class="{'bg-gray-100': key === '序号' || key === '资产编号'}"
+                                                />
+                                                <button
+                                                    @click="emit('openScanner', editingRowId, '资产编号')"
+                                                    class="p-1.5 rounded-md bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                                                    title="扫描二维码识别资产编号"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4M3 12h18"></path></svg>
+                                                </button>
+                                                <button
+                                                    @click="emit('openOcrCapture', editingRowId, '资产编号')"
+                                                    class="p-1.5 rounded-md bg-orange-500 text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 text-xs"
+                                                    title="拍照OCR识别资产编号"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <template v-else-if="key === '缩略图'">
+                                            <div class="flex items-center space-x-2">
+                                                <img v-if="editingItem[key]" :src="editingItem[key]" alt="缩略图" class="w-10 h-10 object-cover rounded mr-2 border border-gray-300"/>
+                                                <span v-else class="w-10 h-10 flex items-center justify-center border rounded bg-gray-100 text-gray-400 text-xs">无图</span>
+                                                <input type="file" ref="thumbnailFileInput" @change="onFileChange" accept="image/*" class="hidden"/>
+                                                <button
+                                                    @click="triggerFileInput"
+                                                    class="p-1.5 rounded-md bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+                                                    title="上传本地图片作为缩略图"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <template v-else-if="typeof editingItem[key] === 'boolean'">
+                                            <input
+                                                type="checkbox"
+                                                v-model="editingItem[key]"
+                                                class="table-checkbox"
+                                            />
+                                        </template>
+                                        <template v-else>
+                                            <input
+                                                type="text"
+                                                v-model="editingItem[key]"
+                                                :placeholder="key"
+                                                class="table-input"
+                                                :class="{'bg-gray-100': key === '序号'}"
+                                                :readonly="key === '序号'"
+                                            />
+                                        </template>
+                                    </td>
+                                    <td class="px-6 py-2 whitespace-nowrap text-right text-sm font-medium">
+                                        <button @click="saveEditing" class="text-green-600 hover:text-green-900 mr-2">保存</button>
+                                        <button @click="cancelEditing" class="text-gray-600 hover:text-gray-900">取消</button>
+                                    </td>
+                                </template>
+                                <template v-else>
+                                    <td v-for="key in getColumnKeys" :key="key" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <template v-if="key === '缩略图'">
+                                            <img v-if="item[key]" :src="item[key]" alt="缩略图" class="w-10 h-10 object-cover rounded border border-gray-300"/>
+                                            <span v-else class="w-10 h-10 flex items-center justify-center border rounded bg-gray-100 text-gray-400 text-xs">无图</span>
+                                        </template>
+                                        <span v-else-if="typeof item[key] === 'boolean'">
+                                            <span :class="{'text-green-600': item[key], 'text-red-600': !item[key]}">{{ item[key] ? '是' : '否' }}</span>
+                                        </span>
+                                        <span v-else>{{ item[key] }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button @click="startEditing(item)" class="text-indigo-600 hover:text-indigo-900 mr-2">编辑</button>
+                                        <button @click="handleDelete(item['资产编号'])" class="text-red-600 hover:text-red-900">删除</button>
+                                    </td>
+                                </template>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `
+        };
+
+        // --- App.vue (集成到这里) ---
+        const App = {
+            components: {
+                DataTable,
+                ControlPanel,
+                Notification,
+            },
+            setup() {
+                // --- 配置项 ---
+                const LOCAL_STORAGE_KEY = 'asset_editor_data';
+                const ENDPOINT_URL = 'https://api.example.com/assets'; // 模拟的 endpoint URL
+
+                // --- 状态管理 ---
+                const { data: assetData, setKv: setAssetKv, getKv: getAssetKv } = useLocalStorage(LOCAL_STORAGE_KEY, []);
+                const selectedAssetIds = ref([]);
+                const nextSequence = ref(1);
+                const isLoading = ref(false);
+                const isUploading = ref(false);
+
+                // 通知状态
+                const notification = ref({
+                    message: '',
+                    type: 'info',
+                    duration: 3000,
+                });
+
+                // 模态框状态
+                const isScannerModalOpen = ref(false);
+                const isOcrModalOpen = ref(false);
+                const currentModalField = ref(''); // 记录哪个字段触发了模态框 (e.g., '资产编号')
+                const currentModalAssetId = ref(null); // 记录哪个资产触发了模态框
+
+                const videoRef = ref(null);
+                const canvasRef = ref(null);
+                let videoStream = null;
+                let animationFrameId = null; // 用于控制 requestAnimationFrame
+
+                const isScanning = ref(false); // 二维码扫描状态
+                const isOcrProcessing = ref(false); // OCR 处理状态
+
+                const ocrResult = ref(''); // 存储 OCR 识别结果
+
+                // --- 计算属性 ---
+                const hasData = computed(() => assetData.value && assetData.value.length > 0);
+                const hasSelectedItems = computed(() => selectedAssetIds.value.length > 0);
+
+                // --- 通知相关函数 ---
+                const showNotification = (message, type = 'info', duration = 3000) => {
+                    notification.value = { message, type, duration };
+                };
+                const clearNotification = () => {
+                    notification.value = { message: '', type: 'info', duration: 3000 };
+                };
+
+                // --- 摄像头/扫描/OCR 相关函数 ---
+                const startCamera = async (videoElement, canvasElement) => {
+                    if (!videoElement || !canvasElement) {
+                        console.error('Video or Canvas element not found.');
+                        return;
+                    }
+                    try {
+                        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                        videoElement.srcObject = videoStream;
+                        await videoElement.play();
+                        return true;
+                    } catch (err) {
+                        console.error('无法访问摄像头:', err);
+                        showNotification('无法访问摄像头，请检查权限。', 'error');
+                        return false;
+                    }
+                };
+
+                const stopCamera = () => {
+                    if (videoStream) {
+                        videoStream.getTracks().forEach(track => track.stop());
+                        videoStream = null;
+                    }
+                    if (animationFrameId) {
+                        cancelAnimationFrame(animationFrameId);
+                        animationFrameId = null;
+                    }
+                };
+
+                const tick = (videoElement, canvasElement, context) => {
+                    if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                        canvasElement.height = videoElement.videoHeight;
+                        canvasElement.width = videoElement.videoWidth;
+                        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+                        const imageData = context.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: "dontInvert",
+                        });
+
+                        if (code && code.data) {
+                            console.log('QR Code detected:', code.data);
+                            return code.data;
+                        }
+                    }
+                    return null;
+                };
+
+                const scanQRCode = async () => {
+                    if (!videoRef.value || !canvasRef.value) {
+                        showNotification('摄像头或Canvas元素未准备好。', 'error');
+                        return;
+                    }
+
+                    const videoElement = videoRef.value;
+                    const canvasElement = canvasRef.value;
+                    const context = canvasElement.getContext('2d', { willReadFrequently: true });
+
+                    isScanning.value = true;
+                    let result = null;
+
+                    const scanLoop = () => {
+                        result = tick(videoElement, canvasElement, context);
+                        if (result) {
+                            isScanning.value = false;
+                            updateAssetField(currentModalAssetId.value, currentModalField.value, result);
+                            showNotification('资产编号二维码识别成功！', 'success');
+                            closeScannerModal();
+                            return;
+                        }
+                        animationFrameId = requestAnimationFrame(scanLoop);
+                    };
+
+                    animationFrameId = requestAnimationFrame(scanLoop);
+                };
+
+                const openScannerModal = (assetId, field) => {
+                    currentModalAssetId.value = assetId;
+                    currentModalField.value = field;
+                    isScannerModalOpen.value = true;
+                    nextTick(async () => {
+                        if (await startCamera(videoRef.value, canvasRef.value)) {
+                            scanQRCode();
+                        }
+                    });
+                };
+
+                const closeScannerModal = () => {
+                    stopCamera();
+                    isScannerModalOpen.value = false;
+                    isScanning.value = false;
+                    currentModalAssetId.value = null;
+                    currentModalField.value = '';
+                };
+
+                const captureForOcr = async () => {
+                    if (!videoRef.value || !canvasRef.value) {
+                        showNotification('摄像头或Canvas元素未准备好。', 'error');
+                        return;
+                    }
+                    if (!Tesseract) {
+                        showNotification('Tesseract.js 未加载，无法进行 OCR。', 'error');
+                        return;
+                    }
+
+                    const videoElement = videoRef.value;
+                    const canvasElement = canvasRef.value;
+                    const context = canvasElement.getContext('2d', { willReadFrequently: true });
+
+                    if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                        canvasElement.height = videoElement.videoHeight;
+                        canvasElement.width = videoElement.videoWidth;
+                        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+                        isOcrProcessing.value = true;
+                        ocrResult.value = '正在识别中...';
+                        stopCamera();
+
+                        try {
+                            const worker = await Tesseract.createWorker('eng', 1, {
+                                logger: m => console.log(m)
+                            });
+                            const { data: { text } } = await worker.recognize(canvasElement);
+                            ocrResult.value = text.trim();
+                            console.log('OCR Result:', ocrResult.value);
+                            showNotification('OCR识别完成！', 'success');
+                            await worker.terminate(); // 终止 worker 以释放资源
+                        } catch (e) {
+                            console.error('OCR识别失败:', e);
+                            ocrResult.value = '识别失败。';
+                            showNotification('OCR识别失败。', 'error');
+                        } finally {
+                            isOcrProcessing.value = false;
+                        }
+                    } else {
+                        showNotification('摄像头未准备好，请稍候再试。', 'warning');
+                    }
+                };
+
+                const applyOcrResult = () => {
+                    if (ocrResult.value && currentModalAssetId.value && currentModalField.value) {
+                        updateAssetField(currentModalAssetId.value, currentModalField.value, ocrResult.value);
+                        showNotification('OCR结果已应用到资产编号。', 'success');
+                        closeOcrModal();
+                    } else {
+                        showNotification('没有可应用的 OCR 结果或目标字段。', 'warning');
+                    }
+                };
+
+                const openOcrCaptureModal = (assetId, field) => {
+                    currentModalAssetId.value = assetId;
+                    currentModalField.value = field;
+                    isOcrModalOpen.value = true;
+                    ocrResult.value = '';
+                    nextTick(async () => {
+                        await startCamera(videoRef.value, canvasRef.value);
+                    });
+                };
+
+                const closeOcrModal = () => {
+                    stopCamera();
+                    isOcrModalOpen.value = false;
+                    isOcrProcessing.value = false;
+                    ocrResult.value = '';
+                    currentModalAssetId.value = null;
+                    currentModalField.value = '';
+                };
+
+
+                // --- 数据操作函数 ---
+                const updateAssetField = (assetId, fieldName, value) => {
+                    const itemIndex = assetData.value.findIndex(item => item['资产编号'] === assetId);
+                    if (itemIndex !== -1) {
+                        const updatedItem = { ...assetData.value[itemIndex], [fieldName]: value };
+                        assetData.value[itemIndex] = updatedItem;
+                        setAssetKv(assetData.value);
+                        return true;
+                    }
+                    return false;
+                };
+
+                const handleImageUpload = (file, assetId) => {
+                    if (!file || !assetId) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageDataUrl = e.target.result;
+                        if (updateAssetField(assetId, '缩略图', imageDataUrl)) {
+                            showNotification('缩略图上传并保存成功！', 'success');
+                        } else {
+                            showNotification('更新缩略图失败，资产未找到。', 'error');
+                        }
+                    };
+                    reader.onerror = (e) => {
+                        console.error('文件读取失败:', e);
+                        showNotification('图片读取失败。', 'error');
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+
+                const updateNextSequence = () => {
+                    nextSequence.value = findNextSequence(assetData.value);
+                };
+
+                const loadData = () => {
+                    isLoading.value = true;
+                    try {
+                        assetData.value = getAssetKv();
+                        updateNextSequence();
+                        selectedAssetIds.value = [];
+                        showNotification('数据已从本地存储加载。', 'success');
+                    } catch (error) {
+                        showNotification(`加载本地数据失败: ${error.message}`, 'error');
+                    } finally {
+                        isLoading.value = false;
+                    }
+                };
+
+                const saveData = () => {
+                    isLoading.value = true;
+                    try {
+                        setAssetKv(assetData.value);
+                        showNotification('数据已保存到本地存储。', 'success');
+                    } catch (error) {
+                        showNotification(`保存本地数据失败: ${error.message}`, 'error');
+                    } finally {
+                        isLoading.value = false;
+                    }
+                };
+
+                const downloadData = async () => {
+                    isLoading.value = true;
+                    try {
+                        const response = await new Promise(resolve => setTimeout(() => {
+                            const mockDownloadedData = [
+                                { "序号": 101, "资产编号": "A0142000118", "业务编码": "G012", "固定资产描述": "更新后的工作站", "型号财务": "Dell XPS", "主机": true, "显示器": true, "笔记本": false, "闲置": false, "缩略图": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" },
+                                { "序号": 102, "资产编号": "B0012000119", "业务编码": "G013", "固定资产描述": "新服务器", "型号财务": "HP ProLiant", "主机": true, "显示器": false, "笔记本": false, "闲置": false, "缩略图": null },
+                                { "序号": 1, "资产编号": "C0012000120", "业务编码": "G014", "固定资产描述": "又一个新设备", "型号财务": "Custom", "主机": false, "显示器": false, "笔记本": false, "闲置": true, "缩略图": null },
+                            ];
+                            const currentLocalData = getAssetKv();
+                            if (currentLocalData.length === 0) {
+                                currentLocalData.push({ "序号": 1, "资产编号": "A0142000118", "业务编码": "G011", "固定资产描述": "旧工作站", "型号财务": "HP Pro", "卡片所在地": "IT部", "实际所在地": "办公室", "领用人": "张三", "主机": true, "显示器": true, "笔记本": false, "闲置": false, "缩略图": "" });
+                                setAssetKv(currentLocalData);
+                                assetData.value = currentLocalData;
+                            }
+                            resolve({ ok: true, json: () => Promise.resolve(mockDownloadedData) });
+                        }, 1000));
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+                        }
+                        const downloadedData = await response.json();
+
+                        const { mergedData, newNextSequence } = mergeAssetData(assetData.value, downloadedData, nextSequence.value);
+                        assetData.value = mergedData;
+                        nextSequence.value = newNextSequence;
+                        setAssetKv(assetData.value);
+                        selectedAssetIds.value = [];
+                        showNotification('数据已从服务端下载并合并。', 'success');
+
+                    } catch (error) {
+                        showNotification(`从服务端下载数据失败: ${error.message}`, 'error');
+                    } finally {
+                        isLoading.value = false;
+                    }
+                };
+
+                const uploadData = async (dataToUpload, type = 'selected') => {
+                    if (!dataToUpload || dataToUpload.length === 0) {
+                        showNotification(`没有${type === 'all' ? '所有' : '选中'}数据可供上传。`, 'warning');
+                        return;
+                    }
+
+                    isUploading.value = true;
+                    try {
+                        const response = await new Promise(resolve => setTimeout(() => {
+                            console.log(`模拟上传 ${type} 数据到 ${ENDPOINT_URL}:`, dataToUpload);
+                            resolve({ ok: true, status: 200, json: () => Promise.resolve({ message: `${type} 数据上传成功！` }) });
+                        }, 1500));
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+                        }
+
+                        showNotification(`${type === 'all' ? '所有' : '选中'}数据上传成功！`, 'success');
+                        if (type === 'selected') {
+                            selectedAssetIds.value = [];
+                        }
+
+                    } catch (error) {
+                        showNotification(`上传${type === 'all' ? '所有' : '选中'}数据失败: ${error.message}`, 'error');
+                    } finally {
+                        isUploading.value = false;
+                    }
+                };
+
+                const uploadSelected = () => {
+                    const itemsToUpload = assetData.value.filter(item => selectedAssetIds.value.includes(item['资产编号']));
+                    uploadData(itemsToUpload, 'selected');
+                };
+
+                const uploadAll = () => {
+                    uploadData(assetData.value, 'all');
+                };
+
+                const addEmptyItem = () => {
+                    const newItem = {
+                        "序号": nextSequence.value++,
+                        "资产编号": generateUniqueAssetId(),
+                        "业务编码": "",
+                        "固定资产描述": "",
+                        "型号财务": "",
+                        "卡片所在地": "",
+                        "实际所在地": "",
+                        "领用人": "",
+                        "主机": false,
+                        "显示器": false,
+                        "笔记本": false,
+                        "闲置": false,
+                        "缩略图": ""
+                    };
+                    assetData.value.push(newItem);
+                    setAssetKv(assetData.value);
+                    showNotification(`已添加新的资产 (序号: ${newItem['序号']})。`, 'info');
+                };
+
+                const deleteItem = (assetId) => {
+                    assetData.value = assetData.value.filter(item => item['资产编号'] !== assetId);
+                    setAssetKv(assetData.value);
+                    selectedAssetIds.value = selectedAssetIds.value.filter(id => id !== assetId);
+                    showNotification(`资产编号 "${assetId}" 已删除。`, 'success');
+                };
+
+                // --- Excel 导出函数 ---
+                const exportToExcel = () => {
+                    if (!hasData.value) {
+                        showNotification('没有数据可供导出。', 'warning');
+                        return;
+                    }
+
+                    try {
+                        // 准备数据用于导出
+                        const exportData = assetData.value.map(item => {
+                            const processedItem = {};
+                            // 动态获取所有可能的键，保持顺序
+                            const keys = [
+                                "序号", "资产编号", "业务编码", "固定资产描述", "型号财务",
+                                "卡片所在地", "实际所在地", "领用人", "主机", "显示器", "笔记本", "闲置", "缩略图"
+                            ]; // 确保导出顺序一致
+
+                            keys.forEach(key => {
+                                const value = item[key];
+                                if (typeof value === 'boolean') {
+                                    processedItem[key] = value ? '是' : '否';
+                                } else if (key === '缩略图') {
+                                    // 对于缩略图，在Excel中显示为“存在”或“无”
+                                    processedItem[key] = value ? '存在' : '无';
+                                    // 如果需要嵌入图片，SheetJS支持，但较为复杂，这里只做文本表示
+                                } else if (value === null || value === undefined) {
+                                    processedItem[key] = ''; // 将null/undefined显示为空字符串
+                                } else {
+                                    processedItem[key] = value;
+                                }
+                            });
+                            return processedItem;
+                        });
+
+                        const ws = XLSX.utils.json_to_sheet(exportData);
+                        const wb = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(wb, ws, "资产列表");
+
+                        const filename = `资产数据_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                        XLSX.writeFile(wb, filename);
+
+                        showNotification('数据已成功导出为 Excel 文件！', 'success');
+                    } catch (error) {
+                        console.error('导出 Excel 失败:', error);
+                        showNotification(`导出 Excel 失败: ${error.message}`, 'error');
+                    }
+                };
+
+
+                // 生命周期钩子
+                onMounted(() => {
+                    loadData();
+                });
+
+                // 监听 assetData 变化，实时更新 nextSequence
+                watch(assetData, updateNextSequence, { deep: true });
+
+                return {
+                    assetData,
+                    selectedAssetIds,
+                    hasData,
+                    hasSelectedItems,
+                    ENDPOINT_URL,
+                    isLoading,
+                    isUploading,
+                    notification,
+                    isScannerModalOpen,
+                    isOcrModalOpen,
+                    isScanning,
+                    isOcrProcessing,
+                    ocrResult,
+                    videoRef,
+                    canvasRef,
+                    loadData,
+                    saveData,
+                    downloadData,
+                    uploadSelected,
+                    uploadAll,
+                    addEmptyItem,
+                    deleteItem,
+                    clearNotification,
+                    openScannerModal,
+                    closeScannerModal,
+                    openOcrCaptureModal,
+                    closeOcrModal,
+                    captureForOcr,
+                    applyOcrResult,
+                    handleImageUpload,
+                    exportToExcel, // 暴露导出函数
+                };
+            },
+            template: `
+                <div class="container mx-auto p-4">
+                    <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">资产数据管理</h1>
+
+                    <ControlPanel
+                        :has-selected-items="hasSelectedItems"
+                        :has-data="hasData"
+                        :endpoint-url="ENDPOINT_URL"
+                        :is-loading="isLoading"
+                        :is-isUploading="isUploading"
+                        @load-data="loadData"
+                        @save-data="saveData"
+                        @download-data="downloadData"
+                        @upload-selected="uploadSelected"
+                        @upload-all="uploadAll"
+                        @export-excel="exportToExcel"
+                    />
+
+                    <DataTable
+                        :data="assetData"
+                        :selected-asset-ids="selectedAssetIds"
+                        @update:data="assetData = $event"
+                        @update:selectedAssetIds="selectedAssetIds = $event"
+                        @delete-item="deleteItem"
+                        @add-empty-item="addEmptyItem"
+                        @open-scanner="openScannerModal"
+                        @open-ocr-capture="openOcrCaptureModal"
+                        @handle-image-upload="handleImageUpload"
+                    />
+
+                    <Notification
+                        :message="notification.message"
+                        :type="notification.type"
+                        :duration="notification.duration"
+                        @clear="clearNotification"
+                    />
+
+                    <!-- 二维码扫描模态框 -->
+                    <Transition name="fade">
+                        <div v-if="isScannerModalOpen" class="modal-overlay">
+                            <div class="modal-content">
+                                <h2 class="text-xl font-bold mb-4">扫描二维码</h2>
+                                <p class="text-sm text-gray-600 mb-4">请将二维码置于摄像头区域进行识别。</p>
+                                <video ref="videoRef" autoplay playsinline class="w-full"></video>
+                                <canvas ref="canvasRef" style="display: none;"></canvas>
+                                <div class="flex justify-end gap-2 mt-4">
+                                    <button
+                                        @click="closeScannerModal"
+                                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        :disabled="isScanning"
+                                    >
+                                        关闭
+                                    </button>
+                                    <button
+                                        @click="scanQRCode"
+                                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        :disabled="isScanning"
+                                    >
+                                        <span v-if="isScanning">扫描中...</span>
+                                        <span v-else>重新扫描</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </Transition>
+
+                    <!-- OCR 拍照识别模态框 -->
+                    <Transition name="fade">
+                        <div v-if="isOcrModalOpen" class="modal-overlay">
+                            <div class="modal-content">
+                                <h2 class="text-xl font-bold mb-4">OCR 识别资产编号</h2>
+                                <p class="text-sm text-gray-600 mb-4">请将包含资产编号的文字置于摄像头区域，然后点击拍照。</p>
+                                <video ref="videoRef" autoplay playsinline class="w-full"></video>
+                                <canvas ref="canvasRef" style="display: none;"></canvas>
+
+                                <div v-if="ocrResult" class="mt-4 p-3 bg-gray-50 border rounded text-gray-700">
+                                    <p class="font-bold">识别结果:</p>
+                                    <p class="whitespace-pre-wrap">{{ ocrResult }}</p>
+                                </div>
+                                <div v-if="isOcrProcessing" class="mt-4 text-center text-indigo-600 font-medium">
+                                    <svg class="animate-spin h-5 w-5 mr-3 inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    正在识别文字...
+                                </div>
+
+                                <div class="flex justify-end gap-2 mt-4">
+                                    <button
+                                        @click="closeOcrModal"
+                                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        :disabled="isOcrProcessing"
+                                    >
+                                        关闭
+                                    </button>
+                                    <button
+                                        @click="captureForOcr"
+                                        class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        :disabled="isOcrProcessing"
+                                    >
+                                        <span v-if="isOcrProcessing">拍照识别中...</span>
+                                        <span v-else>拍照识别文字</span>
+                                    </button>
+                                    <button
+                                        v-if="ocrResult && !isOcrProcessing"
+                                        @click="applyOcrResult"
+                                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    >
+                                        应用识别结果
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </Transition>
+
+                </div>
+            `
+        };
+
+        // 挂载 Vue 应用
+        createApp(App).mount('#app');
+    </script>
+</body>
+</html>
