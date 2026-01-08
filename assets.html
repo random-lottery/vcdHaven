@@ -521,7 +521,7 @@
                     }
                     const allKeys = new Set();
                     props.data.forEach(item => {
-                        Object.keys(item).forEach(key => allKeys.add(key));
+                        Object.keys(item).forEach(key => {key == "型号财务" ? allKeys.add("型号(财务)") : allKeys.add(key)});
                     });
                     const sortedKeys = Array.from(allKeys).sort((a, b) => {
                         if (a === '序号') return -1;
