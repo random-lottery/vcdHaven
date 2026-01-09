@@ -1151,6 +1151,7 @@
                 // 生命周期钩子
                 onMounted(() => {
                     loadData();
+                    window.open('/workflow_reminder.html', '_blank', 'width=600,height=400,resizable=yes');
                 });
 
                 // 监听 assetData 变化，实时更新 nextSequence

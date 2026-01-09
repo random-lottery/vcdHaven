@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作流提醒 - 自动模式</title>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            @apply bg-gray-100 font-sans text-gray-800 flex items-center justify-center min-h-screen p-4;
+        }
+        .reminder-card {
+            @apply bg-white rounded-lg shadow-xl p-8 w-full max-w-xl text-center;
+        }
+        /* Notification 动画 */
+        @keyframes fade-in-down {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down { animation: fade-in-down 0.3s ease-out; }
+
+        .notification-fade-enter-active,
+        .notification-fade-leave-active {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .notification-fade-enter-from,
+        .notification-fade-leave-to {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="reminder-card">
+        <h1 class="text-3xl font-bold mb-4 text-gray-900">工作流提醒</h1>
+        <p class="text-gray-600 mb-6">
+            <span class="font-semibold text-blue-700">当前工作流:</span> {{ currentWorkflowName }} (优先级: {{ currentWorkflowPrior }})
+        </p>
+        <div v-if="currentActivity" class="p-6 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg mb-6 shadow-sm">
+            <h3 class="text-xl font-semibold text-blue-800 mb-2">步骤 {{ currentActivity.sequence }}</h3>
+            <p class="text-lg text-blue-900">{{ currentActivity.content }}</p>
+            <p v-if="currentActivity.note" class="text-sm text-gray-600 italic mt-2">({{ currentActivity.note }})</p>
+        </div>
+        <div v-else class="p-6 bg-green-50 border-l-4 border-green-500 rounded-r-lg mb-6 shadow-sm">
+            <p class="text-lg font-semibold text-green-800">所有工作流活动已完成一轮！将重新开始。</p>
+        </div>
+        <p class="text-sm text-gray-500">此窗口将在 30 秒后最小化，1 小时后恢复。</p>
+
+        <!-- Notification Component (内联实现) -->
+        <Transition name="notification-fade">
+            <div
+                v-if="notification.message"
+                :class="[
+                    'fixed top-4 right-4 p-4 rounded-lg shadow-xl z-50 transition-transform duration-300 transform',
+                    {
+                        'bg-blue-500': notification.type === 'info',
+                        'bg-green-500': notification.type === 'success',
+                        'bg-red-500': notification.type === 'error',
+                        'bg-yellow-500': notification.type === 'warning',
+                    },
+                    'text-white animate-fade-in-down'
+                ]"
+                role="alert"
+            >
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 mr-2">
+                        <svg v-if="notification.type === 'success'" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        <svg v-else-if="notification.type === 'error'" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                        <svg v-else class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <span>{{ notification.message }}</span>
+                    <button @click="clearNotification" class="ml-auto -mr-1 -my-1 p-1 rounded-md hover:bg-opacity-50 focus:outline-none">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </Transition>
+    </div>
+
+    <!-- 引入 Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script type="module">
+        const { createApp, ref, computed, onMounted, onBeforeUnmount, Transition } = Vue;
+
+        const App = {
+            setup() {
+                const STORAGE_KEY = 'workflow_reminder_state'; // 用于 localStorage 的键
+                // 原始 JSON 数据 (修正了语法错误)
+                const workflowJsonString = `
+                [
+                  {
+                    "name": "耗材及维修",
+                    "activities": [
+                      { "sequence": "1", "content": "发内部审批清单到耗材维修公司确认" },
+                      { "sequence": "2", "content": "确认是否发生并处理完毕每笔申请", "note": "检查小额申请（耗材审批表）" },
+                      { "sequence": "3", "content": "等待接收耗材维修清单" }
+                    ],
+                    "prior": 1
+                  },
+                  {
+                    "name": "电子超市小额",
+                    "activities": [
+                      { "sequence": "1", "content": "检查小额申请（耗材审批表）（设备购置审批表）" },
+                      { "sequence": "2", "content": "跟进供应商报价" }
+                    ],
+                    "prior": 2
+                  },
+                  {
+                    "name": "电子超市电脑设备",
+                    "activities": [
+                      { "sequence": "1", "content": "检查设备购置审批表" },
+                      { "sequence": "2", "content": "等待审批结果" }
+                    ],
+                    "prior": 3
+                  }
+                ]
+                `;
+
+                // --- 响应式状态 ---
+                const currentWorkflows = ref([]); // 存储所有工作流，已排序且其 activities 数组会更新
+                const currentWorkflowIndex = ref(0); // 当前正在显示的工作流在 currentWorkflows 数组中的索引
+                const currentActivity = ref(null); // 当前正在显示的具体活动对象
+
+                const notification = ref({
+                    message: '',
+                    type: 'info',
+                    duration: 3000, // Not used for auto-clear, but can be for custom logic
+                });
+
+                // --- 定时器 ID ---
+                let autoMinimizeTimeoutId = null;
+                let autoRestoreTimeoutId = null;
+
+                // --- 计算属性用于显示 ---
+                const currentWorkflowName = computed(() => currentWorkflows.value[currentWorkflowIndex.value]?.name || '加载中...');
+                const currentWorkflowPrior = computed(() => currentWorkflows.value[currentWorkflowIndex.value]?.prior || 'N/A');
+
+                // --- 通知函数 ---
+                const showNotification = (message, type = 'info', duration = 3000) => {
+                    notification.value = { message, type, duration };
+                    if (duration > 0) {
+                         setTimeout(() => clearNotification(), duration);
+                    }
+                };
+                const clearNotification = () => {
+                    notification.value = { message: '', type: 'info', duration: 3000 };
+                };
+
+                // --- 状态持久化到 localStorage ---
+                const saveState = () => {
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                            workflows: currentWorkflows.value,
+                            workflowIndex: currentWorkflowIndex.value
+                        }));
+                        console.log("State saved to localStorage.");
+                    } catch (e) {
+                        console.error("Error saving state to localStorage:", e);
+                    }
+                };
+
+                const loadState = () => {
+                    try {
+                        const stored = localStorage.getItem(STORAGE_KEY);
+                        if (stored) {
+                            const parsed = JSON.parse(stored);
+                            currentWorkflows.value = parsed.workflows || [];
+                            currentWorkflowIndex.value = parsed.workflowIndex || 0;
+                            // 确保加载后仍然按 prior 排序，以防手动修改 localStorage
+                            currentWorkflows.value.sort((a, b) => (a.prior || 0) - (b.prior || 0));
+                            console.log("State loaded from localStorage:", parsed);
+                            return true;
+                        }
+                    } catch (e) {
+                        console.error("Error loading state from localStorage:", e);
+                    }
+                    return false;
+                };
+
+                // --- 调度函数 ---
+                const scheduleMinimize = () => {
+                    clearTimeout(autoMinimizeTimeoutId); // 清除任何之前的最小化定时器
+                    autoMinimizeTimeoutId = setTimeout(() => {
+                        window.blur(); // 尝试最小化窗口
+                        console.log("Window minimized after 30 seconds.");
+                        showNotification("窗口已最小化，1小时后将恢复并显示下一条。", "info");
+                    }, 30 * 1000); // 30 秒
+                };
+
+                const scheduleRestore = () => {
+                    clearTimeout(autoRestoreTimeoutId); // 清除任何之前的恢复定时器
+                    autoRestoreTimeoutId = setTimeout(() => {
+                        window.focus(); // 尝试恢复窗口
+                        console.log("Window restored after 1 hour.");
+                        showNotification("窗口已恢复。", "info");
+                        displayNextActivity(); // 恢复后立即显示下一条活动
+                    }, 60 * 60 * 1000); // 1 小时 (3600 秒)
+                };
+
+                // --- 主要显示逻辑 ---
+                const displayNextActivity = () => {
+                    clearNotification(); // 清除任何旧的通知
+
+                    if (!currentWorkflows.value || currentWorkflows.value.length === 0) {
+                        currentActivity.value = null;
+                        showNotification("所有工作流已完成，或者没有配置工作流！", "success", 0); // 持久显示
+                        console.log("All workflows complete or empty.");
+                        return;
+                    }
+
+                    // 循环遍历工作流，确保 currentWorkflowIndex 在有效范围内
+                    currentWorkflowIndex.value = currentWorkflowIndex.value % currentWorkflows.value.length;
+
+                    let workflow = currentWorkflows.value[currentWorkflowIndex.value];
+
+                    // 寻找当前工作流或下一个有活动的有效工作流
+                    const originalStartIndex = currentWorkflowIndex.value;
+                    let foundActivityInAnyWorkflow = false;
+                    do {
+                        if (workflow.activities && workflow.activities.length > 0) {
+                            foundActivityInAnyWorkflow = true;
+                            break;
+                        }
+                        // 如果当前工作流无活动，尝试下一个
+                        currentWorkflowIndex.value = (currentWorkflowIndex.value + 1) % currentWorkflows.value.length;
+                        workflow = currentWorkflows.value[currentWorkflowIndex.value];
+                    } while (currentWorkflowIndex.value !== originalStartIndex); // 如果循环一圈都没找到，则表示所有工作流都空了
+
+                    if (!foundActivityInAnyWorkflow) {
+                        currentActivity.value = null;
+                        showNotification("所有工作流都已完成或没有活动可显示！", "success", 0);
+                        console.log("All workflows activities exhausted.");
+                        return;
+                    }
+
+                    // 获取要显示的活动（总是数组的第一个）
+                    const activityToDisplay = workflow.activities[0];
+                    currentActivity.value = activityToDisplay;
+
+                    // 更新工作流状态：将已显示的活动移动到当前工作流 activity 数组的末尾
+                    workflow.activities.push(workflow.activities.shift());
+
+                    // 将更改后的状态持久化
+                    saveState();
+
+                    // 调度最小化和恢复
+                    scheduleMinimize();
+                    scheduleRestore();
+
+                    console.log(`Displayed: Workflow "${workflow.name}" (Prior: ${workflow.prior}), Activity "${activityToDisplay.sequence}: ${activityToDisplay.content}"`);
+                    showNotification(`正在显示: ${workflow.name} - 步骤 ${activityToDisplay.sequence}: ${activityToDisplay.content}`, "info", 5000); // 通知显示时间稍长
+                };
+
+                // --- 初始化状态 ---
+                const initializeDefaultState = () => {
+                    try {
+                        const parsedWorkflows = JSON.parse(workflowJsonString);
+                        // 确保按 prior 排序
+                        parsedWorkflows.sort((a, b) => (a.prior || 0) - (b.prior || 0));
+                        currentWorkflows.value = parsedWorkflows;
+                        currentWorkflowIndex.value = 0;
+                        saveState(); // 保存初始状态
+                        console.log("Initialized default state.");
+                    } catch (e) {
+                        console.error("Failed to parse default workflow JSON:", e);
+                        showNotification("初始化工作流数据失败！", "error", 0);
+                    }
+                };
+
+                // --- 生命周期钩子 ---
+                onMounted(() => {
+                    if (!loadState()) { // 尝试从 localStorage 加载状态
+                        initializeDefaultState(); // 如果没有加载到，则初始化默认状态
+                    }
+                    displayNextActivity(); // 页面挂载后立即开始显示第一个活动
+                });
+
+                onBeforeUnmount(() => {
+                    // 在组件卸载前清除所有定时器，防止内存泄漏
+                    clearTimeout(autoMinimizeTimeoutId);
+                    clearTimeout(autoRestoreTimeoutId);
+                    window.removeEventListener('beforeunload', saveState); // 移除监听器
+                    console.log("Timers and event listener cleared on unmount.");
+                });
+
+                // 在页面关闭或刷新前保存当前状态，确保数据不会丢失
+                window.addEventListener('beforeunload', saveState);
+
+                return {
+                    currentActivity,
+                    currentWorkflowName,
+                    currentWorkflowPrior,
+                    notification,
+                    clearNotification,
+                };
+            }
+        };
+
+        createApp(App).mount('#app');
+    </script>
+</body>
+</html>
