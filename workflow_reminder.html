@@ -242,12 +242,13 @@
                     // 寻找当前工作流或下一个有活动的有效工作流
                     const originalStartIndex = currentWorkflowIndex.value;
                     let foundActivityInAnyWorkflow = false;
-                    do {
+                    do {        
                         if (workflow.activities && workflow.activities.length > 0) {
                             foundActivityInAnyWorkflow = true;
-                            // break;
+                            break;
                         }
                         // 如果当前工作流无活动，尝试下一个
+                        currentWorkflowIndex.value = (currentWorkflowIndex.value + 1) % currentWorkflows.value.length);
                         currentWorkflowIndex.value = Math.floor(Math.random() * currentWorkflows.value.length);
                         workflow = currentWorkflows.value[currentWorkflowIndex.value];
                     } while (currentWorkflowIndex.value !== originalStartIndex); // 如果循环一圈都没找到，则表示所有工作流都空了
