@@ -249,7 +249,7 @@
                             break;
                         }
                         // 如果当前工作流无活动，尝试下一个
-                        currentWorkflowIndex.value = (currentWorkflowIndex.value + 1) % currentWorkflows.value.length);
+                        currentWorkflowIndex.value = (currentWorkflowIndex.value + 1) % currentWorkflows.value.length;
                         workflow = currentWorkflows.value[currentWorkflowIndex.value];
                     } while (currentWorkflowIndex.value !== originalStartIndex); // 如果循环一圈都没找到，则表示所有工作流都空了
 
