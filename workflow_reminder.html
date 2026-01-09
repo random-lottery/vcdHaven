@@ -93,17 +93,32 @@
                   {
                     "name": "耗材及维修",
                     "activities": [
-                      { "sequence": "1", "content": "发内部审批清单到耗材维修公司确认" },
-                      { "sequence": "2", "content": "确认是否发生并处理完毕每笔申请", "note": "检查小额申请（耗材审批表）" },
-                      { "sequence": "3", "content": "等待接收耗材维修清单" }
+                      { "sequence": "1", "content": "发内部审批清单到耗材维修公司确认", "note": "确认是否发生并处里完毕每笔申请" },
+                      { "sequence": "2", "content": "等待接收耗材维修清单"},
+                      { "sequence": "3", "content": "发正式开票用送货单清单" },
+                      { "sequence": "4", "content": "接收已盖章签字的销售出库单和发票" },
+                      { "sequence": "5", "content": "生成耗材入库单，并打印" },
+                      { "sequence": "6", "content": "贴报销单据附件粘贴单 ", "note": "销售出库单，和采购入库单" },
+                      { "sequence": "7", "content": "打印（部门）耗材金额分配表" },
+                      { "sequence": "8", "content": "循环检查通知各部门的费用预算和费用计划余额" },
+                      { "sequence": "9", "content": "填写通用报销单-GS", "note": "附单据发票截图" },
+                      { "sequence": "10", "content": "循环检查GS通过" },
+                      { "sequence": "11", "content": "填写GS数字化云平台费用报销单", "note": "附单据发票GS截图" },
+                      { "sequence": "12", "content": "循环检查费用报销通过" },
+                      { "sequence": "13", "content": "检查耗材审批表估算各部门发生金额" },
+                      { "sequence": "14", "content": "循环检查通知各部门的费用预算和费用计划余额" }
                     ],
                     "prior": 1
                   },
                   {
                     "name": "电子超市小额",
                     "activities": [
-                      { "sequence": "1", "content": "检查小额申请（耗材审批表）（设备购置审批表）" },
-                      { "sequence": "2", "content": "跟进供应商报价" }
+                      { "sequence": "1", "content": "检查小额申请《耗材审批表》《设备购置审批表》" },
+                      { "sequence": "2", "content": "检查电子超市《企业订单表》提取小额耗材设备" },
+                      { "sequence": "3", "content": "等待接收电子超市发票" },
+                      { "sequence": "4", "content": "生成耗材入库单" },
+                      { "sequence": "5", "content": "按月打印《采购入库单》", "note":"不贴报销单据附件粘贴单" },
+                      { "sequence": "6", "content": "填写通用报销单GS附件《采购入库单》" , "note":"付款选择其他情况"}
                     ],
                     "prior": 2
                   },
@@ -111,7 +126,16 @@
                     "name": "电子超市电脑设备",
                     "activities": [
                       { "sequence": "1", "content": "检查设备购置审批表" },
-                      { "sequence": "2", "content": "等待审批结果" }
+                      { "sequence": "2", "content": "检查《电子超市企业订单》表《采购设备情况一览》表提取电脑设备" },
+                      { "sequence": "3", "content": "填写底表，生成标签" },
+                      { "sequence": "4", "content": "接收已安装调试完毕的电脑设备-需现场贴标" },
+                      { "sequence": "5", "content": "接收预装未发放的电脑设备-需办公室贴标后领用签字" },
+                      { "sequence": "6", "content": "电脑设备固定资产编号贴标，抄写配置完善底表信息" },
+                      { "sequence": "7", "content": "按每台设备接收电子发票（发票未到跳过）" },
+                      { "sequence": "8", "content": "填写《固定资产交接证》打印扫描截图", "note": "《电子超市企业订单》底表信息" },
+                      { "sequence": "9", "content": "循环检查整理《设备购置审批表》《固定资产交接证》《电子发票》一一对应每台设备" },
+                      { "sequence": "10", "content": "填写通用报销单GS《附件设备购置审批表》《固定资产交接证》《电子发票》" , "note":"付款选择其他情况" },
+                      { "sequence": "11", "content": "接收财务发电子超市已开票未走流程金额，对比《电子超市企业订单》《采购设备情况一览表》检查遗漏发票，发起贴标转固走流程" }
                     ],
                     "prior": 3
                   }
