@@ -234,6 +234,7 @@
                         return;
                     }
 
+                    currentWorkflowIndex.value = Math.floor(Math.random() * currentWorkflows.value.length);
                     // 循环遍历工作流，确保 currentWorkflowIndex 在有效范围内
                     currentWorkflowIndex.value = currentWorkflowIndex.value % currentWorkflows.value.length;
 
@@ -249,7 +250,6 @@
                         }
                         // 如果当前工作流无活动，尝试下一个
                         currentWorkflowIndex.value = (currentWorkflowIndex.value + 1) % currentWorkflows.value.length);
-                        currentWorkflowIndex.value = Math.floor(Math.random() * currentWorkflows.value.length);
                         workflow = currentWorkflows.value[currentWorkflowIndex.value];
                     } while (currentWorkflowIndex.value !== originalStartIndex); // 如果循环一圈都没找到，则表示所有工作流都空了
 
