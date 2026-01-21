@@ -206,7 +206,7 @@ function renderVideoDataToHTML(data) {
         margin: 0 auto; /* 核心：水平居中 */
         background-color: #f4f4f4;
         padding: 0.5rem;
-        border-radius: 8px;
+        border-radius: 0px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
