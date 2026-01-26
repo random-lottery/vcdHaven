@@ -8,22 +8,26 @@
       {
         "url": "https://www.taobao.com",
         "title": "hello kitty",
-        "id": "8"
+        "id": "8",
+        "snapshot":"https://picsum.photos/140/80?id=127"
       },
       {
         "url": "http://www.baidu.com",
         "title": "BAIDU",
-        "id": "5"
+        "id": "5",
+        "snapshot":"https://picsum.photos/140/80?id=126"
       },
       {
         "url": "http://sov.qianpailive.com/b582/20250602/a6049e28c515a0c367f9a92d6665d295?auth_key=1749105623-10-0-6910cce051edd0654ed07284b3f59718&a=ylu7kvm4yc47&t=1749102023756127916&u=j1gxu7I7rQyjdrWDk5ttI6i4T86uW1rJiRaH68O6&vid=GjNAJ9KGV1Mw",
         "title": "视频",
-        "id": 6
+        "id": 6,
+        "snapshot":"https://picsum.photos/140/80?id=125"
       },
       {
         "url": "http://mpv.videocc.net/3ce7283c74/4/3ce7283c7402ac117f94f94b58b62894_3.mp4",
         "title": "shuaiqi",
-        "id": "7"
+        "id": "7",
+        "snapshot":"https://picsum.photos/140/80?id=124"
       }
     ]
   },
@@ -41,7 +45,8 @@
       {
         "id": 2,
         "title": "Video 2",
-        "url": "video2.mp4"
+        "url": "video2.mp4",
+        "snapshot":"https://picsum.photos/140/80?id=1234"
       }
     ]
   },
@@ -54,7 +59,8 @@
       {
         "id": 1,
         "title": "Video 1",
-        "url": "video1.mp4"
+        "url": "video1.mp4",
+        "snapshot":"https://picsum.photos/140/80?id=123"
       }
     ]
   },
