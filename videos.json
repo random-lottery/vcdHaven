@@ -34,7 +34,7 @@
   {
     "videoname": "hello",
     "videointro": "a good start",
-    "videopicture": "https://image.maigoo.com/upload/images/20220621/14315297177_500x312.jpg",
+    "videopicture": "https://picsum.photo/1200/400?id=12345",
     "videocount": 40,
     "videolist": [
       {
