@@ -596,7 +596,7 @@ function getNextSolarTerm(currentDate) {
   for (const term of solarTerms) {
     const termDate = new Date(term.date);
     if (termDate > today) {
-      const daysDiff = Math.ceil((termDate - today) / (1000 * 60 * 60 * 24));
+      const daysDiff = Math.ceil((termDate - today) / (1000 * 60 * 60 * 24) - 1);
       return `距离${term.name}还有${daysDiff}天`;
     }
   }
@@ -637,7 +637,7 @@ function getNextHolidayCountdown(currentDate) {
   }
   
   // 计算倒计时
-  const daysDiff = Math.ceil((nextHoliday - today) / (1000 * 60 * 60 * 24));
+  const daysDiff = Math.ceil((nextHoliday - today) / (1000 * 60 * 60 * 24) - 1);
   const holidayDateStr = nextHoliday.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
   
   return `距离${nextHolidayName}还有${daysDiff}天 (${holidayDateStr})`;
@@ -724,5 +724,7 @@ function toggleTheme() {
     icon.classList.replace('fa-sun-o', 'fa-moon-o');
   }
 }
+
+
 
 
