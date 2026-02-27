@@ -271,17 +271,17 @@
             }
         
             // 如果 audioPlayer 还没有实例，或者之前的音频播放器已经结束
-            if (!audioPlayer.value || audioPlayer.value.ended) {
-              audioPlayer.value = new Audio(alarmSoundPath);
-              audioPlayer.value.loop = false; // 默认不循环
+            if (!audioPlayer || audioPlayer.ended) {
+              audioPlayer = new Audio(alarmSoundPath);
+              audioPlayer.loop = false; // 默认不循环
             }
         
             // 播放音频
-            audioPlayer.value.play()
+            audioPlayer.play()
               .then(() => {
                 console.log('Alarm sound started playing.');
                 // 监听播放结束事件
-                audioPlayer.value?.addEventListener('ended', () => {
+                audioPlayer?.addEventListener('ended', () => {
                   console.log('Alarm sound finished playing.');
                   resolve();
                 }, { once: true }); // 确保事件监听器只触发一次
@@ -303,9 +303,9 @@
             alarmActive = false;
             timeDisplay.classList.remove('animate-pulse', 'text-red-500');
             alarmStatus.textContent = "闹钟已关闭";
-            if (audioPlayer.value && !audioPlayer.value.paused) {
-              audioPlayer.value.pause();
-              audioPlayer.value.currentTime = 0; // 重置到开始
+            if (audioPlayer && !audioPlayer.paused) {
+              audioPlayer.pause();
+              audioPlayer.currentTime = 0; // 重置到开始
               console.log('Alarm sound stopped.');
             }
         }
