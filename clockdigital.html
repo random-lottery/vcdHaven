@@ -241,11 +241,13 @@
                 </div>
             `;
             
-            setTimeout(() => {
+            setTimeout(async () => {
                 let notAlarm = true;
                 // 播放声音提醒（模拟）
-                if(notAlarm)
-                alert("⏰ 闹钟响了！");
+                if(notAlarm){
+                  alert("⏰ 闹钟响了！");
+                  await playAlarmSound();
+                }
                 notAlarm = false;
             }, 10);
 
@@ -256,11 +258,52 @@
             }, 5000);
         }
 
+        const playAlarmSound = async () => {
+          return new Promise((resolve, reject) => {
+            if (!alarmSoundPath) {
+              console.error('Alarm sound path is not defined.');
+              reject(new Error('Alarm sound path not set.'));
+              return;
+            }
+        
+            // 如果 audioPlayer 还没有实例，或者之前的音频播放器已经结束
+            if (!audioPlayer.value || audioPlayer.value.ended) {
+              audioPlayer.value = new Audio(alarmSoundPath);
+              audioPlayer.value.loop = false; // 默认不循环
+            }
+        
+            // 播放音频
+            audioPlayer.value.play()
+              .then(() => {
+                console.log('Alarm sound started playing.');
+                // 监听播放结束事件
+                audioPlayer.value?.addEventListener('ended', () => {
+                  console.log('Alarm sound finished playing.');
+                  resolve();
+                }, { once: true }); // 确保事件监听器只触发一次
+              })
+              .catch((error) => {
+                // 捕获播放错误，例如用户没有交互（浏览器安全策略）
+                console.error('Failed to play alarm sound:', error);
+                // 如果是用户交互导致的错误，可以尝试其他提醒方式
+                if (error.name === 'NotAllowedError' || error.name === 'NotSupportedError') {
+                  alert("⏰ 闹钟响了！(由于浏览器限制，声音可能无法自动播放)");
+                }
+                reject(error); // 拒绝 Promise
+              });
+          });
+        };
+        
         // 停止闹钟
         function stopAlarm() {
             alarmActive = false;
             timeDisplay.classList.remove('animate-pulse', 'text-red-500');
             alarmStatus.textContent = "闹钟已关闭";
+            if (audioPlayer.value && !audioPlayer.value.paused) {
+              audioPlayer.value.pause();
+              audioPlayer.value.currentTime = 0; // 重置到开始
+              console.log('Alarm sound stopped.');
+            }
         }
 
         // 设置事件监听器
