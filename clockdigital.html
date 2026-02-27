@@ -125,6 +125,10 @@
         let showSeconds = true;
         let timeFormat = '24';
         let currentTheme = 'cyan';
+        // 用于控制 Audio 对象的引用
+        let audioPlayer;
+        // 闹钟声音文件路径
+        const alarmSoundPath = '/alarm.mp3';
 
         // DOM元素
         const timeDisplay = document.getElementById('timeDisplay');
