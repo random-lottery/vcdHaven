@@ -247,11 +247,11 @@
             
             setTimeout(async () => {
                 let notAlarm = true;
+                playAlarmSound();
                 // 播放声音提醒（模拟）
                 if(notAlarm){
                   alert("⏰ 闹钟响了！");
                 }
-                playAlarmSound();
                 notAlarm = false;
             }, 10);
 
