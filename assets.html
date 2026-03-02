@@ -1209,25 +1209,6 @@
                         @export-excel="exportToExcel"
                     />
 
-                    <DataTable
-                        :data="assetData"
-                        :selected-asset-ids="selectedAssetIds"
-                        @update:data="assetData = $event"
-                        @update:selectedAssetIds="selectedAssetIds = $event"
-                        @delete-item="deleteItem"
-                        @add-empty-item="addEmptyItem"
-                        @open-scanner="openScannerModal"
-                        @open-ocr-capture="openOcrCaptureModal"
-                        @handle-image-upload="handleImageUpload"
-                    />
-
-                    <Notification
-                        :message="notification.message"
-                        :type="notification.type"
-                        :duration="notification.duration"
-                        @clear="clearNotification"
-                    />
-
                     <!-- 二维码扫描模态框 -->
                     <Transition name="fade">
                         <div v-if="isScannerModalOpen" class="modal-overlay">
@@ -1302,6 +1283,25 @@
                             </div>
                         </div>
                     </Transition>
+
+                    <DataTable
+                        :data="assetData"
+                        :selected-asset-ids="selectedAssetIds"
+                        @update:data="assetData = $event"
+                        @update:selectedAssetIds="selectedAssetIds = $event"
+                        @delete-item="deleteItem"
+                        @add-empty-item="addEmptyItem"
+                        @open-scanner="openScannerModal"
+                        @open-ocr-capture="openOcrCaptureModal"
+                        @handle-image-upload="handleImageUpload"
+                    />
+
+                    <Notification
+                        :message="notification.message"
+                        :type="notification.type"
+                        :duration="notification.duration"
+                        @clear="clearNotification"
+                    />
 
                 </div>
             `
