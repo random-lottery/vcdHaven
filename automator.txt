@@ -1,0 +1,217 @@
+﻿{
+  "name": "OA登录",
+  "shouldNavigateStart": true,
+  "startUrl": "http://oa.ccsmp.com:8081/",
+  "steps": [
+    {
+      "actions": [
+        {
+          "durationMs": 1000,
+          "type": "wait"
+        },
+        {
+          "selector": "input#login_button",
+          "type": "click"
+        }
+      ],
+      "urlPattern": "*",
+      "waitForNavigation": true
+    },
+    {
+      "actions": [
+        {
+          "selector": "textarea[placeholder]",
+          "type": "fill",
+          "value": "付至强办公设备公司电脑耗材款"
+        }
+      ],
+      "urlPattern": "http://oa.ccsmp.com:8081/seeyon/collaboration/collaboration.do?method=newColl&from=bizconfig&firstName=%E8%B4%B9%E6%8E%A7%E7%AE%A1%E7%90%86&secondName=%E9%80%9A%E7%94%A8%E6%8A%A5%E9%94%80%E5%8D%95-GS&menuId=7323132439089791270&templateId=4405029315739336938",
+      "waitForNavigation": true
+    }
+  ]
+}
+
+{
+  "name": "付至强办公耗材",
+  "shouldNavigateStart": true,
+  "startUrl": "http://oa.ccsmp.com:8081/seeyon/collaboration/collaboration.do?method=newColl&from=bizconfig&firstName=%E8%B4%B9%E6%8E%A7%E7%AE%A1%E7%90%86&secondName=%E9%80%9A%E7%94%A8%E6%8A%A5%E9%94%80%E5%8D%95-GS&menuId=7323132439089791270&templateId=4405029315739336938",
+  "steps": [
+    {
+      "actions": [
+        {
+          "selector": "textarea[placeholder]",
+          "type": "fill",
+          "value": "付至强办公设备公司电脑耗材款"
+        }
+      ],
+      "urlPattern": "*",
+      "waitForNavigation": false
+    }
+  ]
+}
+
+{
+  "name": "付航天新商务电脑款",
+  "shouldNavigateStart": true,
+  "startUrl": "http://oa.ccsmp.com:8081/seeyon/collaboration/collaboration.do?method=newColl&from=bizconfig&firstName=%E8%B4%B9%E6%8E%A7%E7%AE%A1%E7%90%86&secondName=%E9%80%9A%E7%94%A8%E6%8A%A5%E9%94%80%E5%8D%95-GS&menuId=7323132439089791270&templateId=4405029315739336938",
+  "steps": [
+    {
+      "actions": [
+        {
+          "selector": "textarea[placeholder]",
+          "type": "fill",
+          "value": "航天新商务信息科技有限公司电脑款"
+        }
+      ],
+      "urlPattern": "*",
+      "waitForNavigation": false
+    }
+  ]
+}
+
+{
+  "name": "经费报销单",
+  "shouldNavigateStart": false,
+  "startUrl": "http://cpfms.casccloud.cn/login.html",
+  "steps": [
+    {
+      "actions": [
+        {
+          "durationMs": 1000,
+          "type": "wait"
+        },
+        {
+          "selector": "[src=\"/runtime/web/metaportlet/epp/common-functions/release/assets/0.svg\"]",
+          "type": "click"
+        },
+        {
+          "durationMs": 5000,
+          "type": "wait"
+        },
+        {
+          "selector": "div.cellRightName",
+          "type": "click"
+        },
+        {
+          "durationMs": 5000,
+          "type": "wait"
+        },
+        {
+          "selector": "textarea#ROBXDJ_ZY",
+          "type": "fill",
+          "value": "付至强办公设备公司电脑耗材款"
+        }
+      ],
+      "urlPattern": "*",
+      "waitForNavigation": false
+    }
+  ]
+}
+
+{
+  "name": "耗材查询导出",
+  "shouldNavigateStart": true,
+  "startUrl": "http://oa.ccsmp.com:8081/seeyon/vreport/vReport.do?method=vReportView",
+  "steps": [
+    {
+      "actions": [
+        {
+          "selector": "div[title='电脑耗材申请查询']",
+          "type": "click"
+        },
+        {
+          "selector": "textarea[placeholder]",
+          "type": "fill",
+          "value": "付至强办公设备公司电脑耗材款"
+        }
+      ],
+      "urlPattern": "*",
+      "waitForNavigation": false
+    }
+  ]
+}
+
+{
+  "name": "电子超市订单查询",
+  "shouldNavigateStart": true,
+  "startUrl": "https://mall.ispacechina.com/html/purchaser/orderQueryEnterprise.html?pageTag=%E8%AE%A2%E5%8D%95%E6%9F%A5%E8%AF%A2&menu_code=orderinq&parent_menu_code=entorder&root_menu_code=ordermang",
+  "steps": [
+    {
+      "actions": [
+        {
+          "selector": "span#up_down",
+          "type": "click"
+        },
+        {
+          "selector": "input[name='orderName']",
+          "type": "fill",
+          "value": "杨滨"
+        },
+        {
+          "selector": "a.btn",
+          "type": "click"
+        }
+      ],
+      "urlPattern": "*",
+      "waitForNavigation": false
+    }
+  ]
+}
+
+{
+  "name": "设备转固-航天新商务",
+  "shouldNavigateStart": true,
+  "startUrl": "http://oa.ccsmp.com:8081/seeyon/collaboration/collaboration.do?method=newColl&from=bizconfig&firstName=%E8%B5%84%E4%BA%A7%E7%AE%A1%E7%90%86&secondName=%E5%9B%BA%E5%AE%9A%E8%B5%84%E4%BA%A7%E4%BA%A4%E6%8E%A5%E8%AF%81&menuId=7303732052410049695&templateId=8061774047739949183",
+  "steps": [
+    {
+      "actions": [
+        {
+          "selector": "input[type='text'][maxlength='100']",
+          "type": "fill",
+          "value": "航天新商务信息科技有限公司"
+        }
+      ],
+      "urlPattern": "*",
+      "waitForNavigation": false
+    }
+  ]
+}
+
+{
+  "name": "合同报销单",
+  "shouldNavigateStart": false,
+  "startUrl": "http://cpfms.casccloud.cn/login.html",
+  "steps": [
+    {
+      "actions": [
+        {
+          "durationMs": 1000,
+          "type": "wait"
+        },
+        {
+          "selector": "[src=\"/runtime/web/metaportlet/epp/common-functions/release/assets/0.svg\"]",
+          "type": "click"
+        },
+        {
+          "durationMs": 5000,
+          "type": "wait"
+        },
+        {
+          "selector": "div[text='合同报销单']",
+          "type": "click"
+        },
+        {
+          "durationMs": 5000,
+          "type": "wait"
+        },
+        {
+          "selector": "textarea#SUMMARY",
+          "type": "fill",
+          "value": "航天新商务信息科技有限公司电脑款"
+        }
+      ],
+      "urlPattern": "*",
+      "waitForNavigation": false
+    }
+  ]
+}
