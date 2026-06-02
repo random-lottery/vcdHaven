@@ -6,6 +6,8 @@ let kv = null; // Deno Kv 实例
 let videos = [];
 let storagedata = [];
 let nextVideoId = 1;
+let activeUsername = null; // 当前请求关联的用户名（已认证）
+const sessions = new Map(); // token -> session（与 userworker 共享 KV）
 
 // --- Utility Classes and Functions ---
 
@@ -64,63 +66,107 @@ async function initializeKv() {
 }
 
 /**
- * Loads video data from Deno KV.
+ * Loads session data from Deno KV (shared with userworker).
  */
-async function loadVideos() {
-    if (!kv) await initializeKv(); // 确保 KV 已初始化
+async function loadSessions() {
+    if (!kv) await initializeKv();
     try {
-        const result = await kv.get(["videos_data"]);
+        const result = await kv.get(["sessions_data"]);
         if (result.value) {
-            const videoData = JSON.parse(result.value);
-            videos = videoData;
-
-            let maxId = 0;
-            videos.forEach(group => {
-                if (group.videolist && Array.isArray(group.videolist)) {
-                    group.videolist.forEach(video => {
-                        const videoId = parseInt(video.id);
-                        if (!isNaN(videoId) && videoId > maxId) {
-                            maxId = videoId;
-                        }
-                    });
-                }
-            });
-            nextVideoId = maxId + 1;
-            console.log(`[INFO] Videos loaded from KV. Next Video ID will be: ${nextVideoId}`);
+            sessions.clear();
+            for (const [token, session] of result.value) {
+                sessions.set(token, session);
+            }
         } else {
-            console.warn('[WARN] No video data found in KV, initializing with empty video list.');
-            videos = JSON.parse(Deno.env.get('videos_data') || '[]');  // 从环境变量中获取初始视频数据
-            let maxId = 0;
-            videos.forEach(group => {
-                if (group.videolist && Array.isArray(group.videolist)) {
-                    group.videolist.forEach(video => {
-                        const videoId = parseInt(video.id);
-                        if (!isNaN(videoId) && videoId > maxId) {
-                            maxId = videoId;
-                        }
-                    });
+            sessions.clear();
+        }
+    } catch (err) {
+        console.error('Error loading sessions from KV:', err);
+        throw new HttpError("Failed to load session data from KV.", 500);
+    }
+}
+
+/**
+ * Get user from Authorization header.
+ */
+async function getAuthenticatedUser(request) {
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return null;
+    }
+    const token = authHeader.substring(7);
+    const session = sessions.get(token);
+    if (!session) {
+        return null;
+    }
+    const now = Date.now();
+    if (now - session.createdAt > 24 * 60 * 60 * 1000) {
+        sessions.delete(token);
+        return null;
+    }
+    return session.user;
+}
+
+function recomputeNextVideoId() {
+    let maxId = 0;
+    videos.forEach(group => {
+        if (group.videolist && Array.isArray(group.videolist)) {
+            group.videolist.forEach(video => {
+                const videoId = parseInt(video.id);
+                if (!isNaN(videoId) && videoId > maxId) {
+                    maxId = videoId;
                 }
             });
-            nextVideoId = maxId + 1;
-            console.log(`[INFO] Videos initialized from environment variable. Next Video ID will be: ${nextVideoId}`);  
-            nextVideoId = 1;
+        }
+    });
+    nextVideoId = maxId + 1;
+}
+
+/**
+ * Loads video data from Deno KV for a specific user.
+ * @param {string} username
+ */
+async function loadVideos(username) {
+    if (!kv) await initializeKv();
+    activeUsername = username;
+    try {
+        const result = await kv.get(["videos_data", username]);
+        if (result.value) {
+            videos = JSON.parse(result.value);
+            recomputeNextVideoId();
+            console.log(`[INFO] Videos loaded for user "${username}". Next Video ID: ${nextVideoId}`);
+        } else {
+            const legacy = await kv.get(["videos_data"]);
+            if (legacy.value) {
+                videos = JSON.parse(legacy.value);
+                await saveVideos(username);
+                recomputeNextVideoId();
+                console.log(`[INFO] Migrated legacy videos_data to user "${username}".`);
+            } else {
+                videos = JSON.parse(Deno.env.get('videos_data') || '[]');
+                recomputeNextVideoId();
+                if (videos.length > 0) {
+                    await saveVideos(username);
+                }
+            }
         }
     } catch (err) {
         console.error('Error loading videos from KV:', err);
-        await kv.set(["videos_data"], '[]');
         throw new HttpError(`Failed to load video data from KV: ${err.message}`, 500);
     }
 }
 
 /**
- * Saves current video data to Deno KV.
+ * Saves current video data to Deno KV for the active user.
  */
-async function saveVideos() {
+async function saveVideos(username = activeUsername) {
+    if (!username) {
+        throw new HttpError("No active user for video save.", 500);
+    }
     if (!kv) await initializeKv();
     try {
-        // KV 可以存储任意可序列化对象，但这里为了与原始 JSON 格式化一致，仍使用 JSON.stringify
-        await kv.set(["videos_data"], JSON.stringify(videos, null, 2));
-        console.log('[INFO] Videos saved to KV successfully.');
+        await kv.set(["videos_data", username], JSON.stringify(videos, null, 2));
+        console.log(`[INFO] Videos saved for user "${username}".`);
     } catch (err) {
         console.error('Error saving videos to KV:', err);
         throw new HttpError("Failed to save video data to KV.", 500);
@@ -179,9 +225,11 @@ async function saveStorages() {
 /**
  * 将视频数据渲染为完整的、带有样式的 HTML 字符串。
  * @param {Array<object>} data - 视频数据数组。
+ * @param {string} [username] - 视频所属用户名。
  * @returns {string} 完整的 HTML 文档字符串。
  */
-function renderVideoDataToHTML(data) {
+function renderVideoDataToHTML(data, username = '') {
+  const pageTitle = username ? `${username} 的私人视频` : '视频列表';
   // --- 1. CSS 样式定义 (使用模板字符串) ---
   // 这种方式将样式与组件逻辑紧密耦合，便于维护
   const styles = `
@@ -387,7 +435,7 @@ function renderVideoDataToHTML(data) {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>视频列表</title>
+      <title>${pageTitle}</title>
       ${styles}
     </head>
     <body bgcolor=black>
@@ -435,10 +483,25 @@ export default {
       const url = new URL(request.url); // 解析请求 URL
       const { pathname } = url;
 
-      // 在每个请求中重新加载数据，以确保数据是最新的。
-      // 注意：由于 KV 是持久化的，每次请求重新加载是确保数据新鲜度的关键。
-      // 对于高并发或数据频繁更新的场景，考虑更细粒度的锁或事务机制（Deno KV 提供原子操作 API）。
-      await loadVideos();
+      await loadSessions();
+
+      // 公开：用户私人视频 HTML 页面 GET /plain/:username
+      const plainMatch = pathname.match(/^\/plain\/([^/]+)\/?$/);
+      if (request.method === "GET" && plainMatch) {
+        const plainUsername = decodeURIComponent(plainMatch[1]);
+        await loadVideos(plainUsername);
+        return new Response(
+          renderVideoDataToHTML(videos, plainUsername),
+          fixCors({ status: 200, headers: { 'Content-Type': 'text/html;charset=UTF-8' } })
+        );
+      }
+
+      // 其余视频/存储 API 需要登录
+      const authUser = await getAuthenticatedUser(request);
+      if (!authUser) {
+        throw new HttpError("Unauthorized. Please sign in.", 401);
+      }
+      await loadVideos(authUser.username);
       await loadStorages();
 
       // 根据请求方法和路径进行路由
@@ -456,9 +519,6 @@ export default {
         case request.method === "GET" && pathname === "/mockdata":
           return new Response(JSON.stringify(storagedata), fixCors({ status: 200, headers: { 'Content-Type': 'application/json;charset=UTF-8' } }));
 
-        case request.method === "GET" && pathname === "/plain":
-          return new Response(renderVideoDataToHTML(videos), fixCors({ status: 200, headers: { 'Content-Type': 'text/html;charset=UTF-8' } }));
-          
         case request.method === "GET" && pathname.startsWith("/videolist"):
           let groupVideos = [];
           const pathParts = pathname.split('/').filter(part => part); // Filter out empty strings

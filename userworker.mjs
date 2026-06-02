@@ -349,6 +349,7 @@ export default {
           const newUser = {
             id: userId,
             username: username,
+            private_videos_path: `/plain/${username}`,
             email: email,
             password_hash: passwordHash,
             phone_number: phone_number || null,

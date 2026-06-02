@@ -143,16 +143,9 @@
     <script src="auth.js"></script>
     <script src="management.js"></script>
     <script>
-        populateVideoData();
-        // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            
-            if (mobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', function() {
-                    mobileMenu.classList.toggle('hidden');
-                });
+            if (window.auth?.isAuthenticated?.()) {
+                populateVideoData();
             }
         });
     </script>

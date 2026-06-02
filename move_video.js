@@ -1,14 +1,22 @@
+function authFetch(url, options = {}) {
+    const headers = window.auth?.getAuthHeaders?.(options.headers || {}) || (options.headers || {});
+    return fetch(url, { ...options, headers });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     let videoGroups = [];
 
-    // Fetch video groups from videos
-    fetch('/videolist')
-        .then(response => response.json())
+    authFetch('/videolist')
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to load video groups');
+            return response.json();
+        })
         .then(data => {
             videoGroups = data;
             populateGroupSelects(videoGroups);
             populateVideoLists();
-        });
+        })
+        .catch(err => console.error(err));
 
     function populateGroupSelects(videoGroups) {
         const sourceGroupSelect = document.getElementById('sourceGroupSelect');
@@ -67,8 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedVideos = Array.from(sourceVideoList.querySelectorAll('input[type="checkbox"]:checked'))
             .map(checkbox => parseInt(checkbox.value));
 
-        // Send move request to server
-        fetch('/movevideos', {
+        authFetch('/movevideos', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -82,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => {
             if (response.ok) {
                 alert('Videos moved successfully!');
+                location.reload();
             } else {
                 alert('Error moving videos.');
             }
@@ -91,5 +99,3 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sourceGroupSelect').addEventListener('change', populateVideoLists);
     document.getElementById('destGroupSelect').addEventListener('change', populateVideoLists);
 });
-
-

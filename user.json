@@ -2,6 +2,7 @@
     {
       "id": "uuid-admin-12345",
       "username": "admin",
+      "private_videos_path": "/plain/admin",
       "email": "admin@example.com",
       "password_hash": "$2b$10$abcdef...",
       "phone_number": "+15551234567",  
@@ -36,6 +37,7 @@
     {
       "id": "uuid-user1-67890",
       "username": "user1",
+      "private_videos_path": "/plain/user1",
       "email": "user1@example.com",
       "password_hash": "$2b$10$ghijkl...",
       "phone_number": "+8613800138000",
@@ -70,6 +72,7 @@
     {
       "id": "uuid-inactive-11223",
       "username": "guest_user",
+      "private_videos_path": "/plain/guest_user",
       "email": "guest@example.com",
       "password_hash": "$2b$10$mnopqr...",
       "phone_number": null, 

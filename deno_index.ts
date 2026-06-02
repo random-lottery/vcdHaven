@@ -138,7 +138,7 @@ async function handleRequest(req: Request): Promise<Response> {
       url.pathname.endsWith("/movevideos") ||
       url.pathname.endsWith("/savevideodetails") ||
       url.pathname.startsWith("/videos/") ||
-      url.pathname.startsWith("/plain") ||
+      url.pathname.startsWith("/plain/") || // GET /plain/:username — user private videos
       url.pathname.startsWith("/videolist") ||
       url.pathname.startsWith("/denoenv") ||
       url.pathname.startsWith("/deletevideogroup/") ||

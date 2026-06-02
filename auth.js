@@ -2,6 +2,36 @@
 let currentUser = null;
 let authToken = null;
 
+// Pages that require login (video management)
+const PROTECTED_PAGES = [
+    'management.html',
+    'move_video.html',
+    'add_videogroup.html',
+    'storage_manager.html'
+];
+
+function isProtectedPage() {
+    const path = window.location.pathname;
+    return PROTECTED_PAGES.some(page => path.endsWith(page));
+}
+
+function getAuthHeaders(extraHeaders = {}) {
+    const headers = { ...extraHeaders };
+    if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    return headers;
+}
+
+function requireAuth() {
+    if (!authToken || !currentUser) {
+        const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `index.html?redirect=${redirect}`;
+        return false;
+    }
+    return true;
+}
+
 // Cookie helpers for dual storage (cookie + localStorage)
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -38,9 +68,14 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (_) {
         currentUser = null;
     }
+
+    if (isProtectedPage() && !requireAuth()) {
+        return;
+    }
     
     updateUI();
     setupEventListeners();
+    setupMobileMenu();
 });
 
 // Setup event listeners for modals and forms
@@ -130,8 +165,14 @@ function setupEventListeners() {
                     signinForm.reset();
                     updateUI();
                     
-                    // Show success message
                     showNotification('登录成功！', 'success');
+
+                    const params = new URLSearchParams(window.location.search);
+                    const redirect = params.get('redirect');
+                    if (redirect) {
+                        window.location.href = redirect;
+                        return;
+                    }
                 } else {
                     errorDiv.textContent = data.error || '登录失败，请检查用户名和密码';
                     errorDiv.classList.remove('hidden');
@@ -258,6 +299,28 @@ async function signOut() {
     }
 }
 
+// Toggle mobile nav menu (shared across pages with #mobile-menu-button)
+function setupMobileMenu() {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+}
+
+// Show/hide management nav links based on login state
+function setNavLinkVisibility(selector, visible) {
+    document.querySelectorAll(selector).forEach(el => {
+        if (visible) {
+            el.classList.remove('hidden');
+        } else {
+            el.classList.add('hidden');
+        }
+    });
+}
+
 // Update UI based on authentication state
 function updateUI() {
     const signinBtn = document.getElementById('signin-btn');
@@ -272,7 +335,15 @@ function updateUI() {
     const mobileSignoutBtn = document.getElementById('mobile-signout-btn');
     const mobileDashboardLink = document.getElementById('mobile-dashboard-link');
 
+    const managementNavSelectors = [
+        'a[href="management.html"]',
+        'a[href="add_videogroup.html"]',
+        'a[href="move_video.html"]',
+        'a[href="storage_manager.html"]'
+    ];
+
     if (currentUser && authToken) {
+        managementNavSelectors.forEach(sel => setNavLinkVisibility(sel, true));
         // User is logged in
         if (signinBtn) signinBtn.classList.add('hidden');
         if (signupBtn) signupBtn.classList.add('hidden');
@@ -289,6 +360,7 @@ function updateUI() {
         if (mobileSignoutBtn) mobileSignoutBtn.classList.remove('hidden');
         if (mobileDashboardLink) mobileDashboardLink.classList.remove('hidden');
     } else {
+        managementNavSelectors.forEach(sel => setNavLinkVisibility(sel, false));
         // User is not logged in
         if (signinBtn) signinBtn.classList.remove('hidden');
         if (signupBtn) signupBtn.classList.remove('hidden');
@@ -332,6 +404,9 @@ window.auth = {
     getToken: () => authToken,
     getUser: () => currentUser,
     isAuthenticated: () => !!authToken && !!currentUser,
+    getAuthHeaders: getAuthHeaders,
+    requireAuth: requireAuth,
+    getPrivateVideosUrl: () => currentUser ? `/plain/${encodeURIComponent(currentUser.username)}` : null,
     updateUI: updateUI,
     signout: signOut
 };

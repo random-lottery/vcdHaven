@@ -1,8 +1,13 @@
+function authFetch(url, options = {}) {
+    const headers = window.auth?.getAuthHeaders?.(options.headers || {}) || (options.headers || {});
+    return fetch(url, { ...options, headers });
+}
+
 function addVideo() {
     const url = document.getElementById('url').value;
     const title = document.getElementById('title').value;
 
-    fetch('/videos', {
+    authFetch('/videos', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -12,6 +17,7 @@ function addVideo() {
     .then(response => {
         if (response.ok) {
             alert('Video added successfully!');
+            populateVideoData();
         } else {
             alert('Error adding video.');
         }
@@ -25,7 +31,7 @@ function modifyVideo() {
     const summary = document.getElementById('videoSummary').value;
     if (!id) { alert('Please select a video from the list.'); return; }
 
-     fetch('/videos/' + id, {
+     authFetch('/videos/' + id, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
@@ -44,12 +50,13 @@ function modifyVideo() {
 function deleteVideo() {
     const id = document.getElementById('selectedVideoId').value;
     if (!id) { alert('Please select a video from the list.'); return; }
-     fetch('/videos/' + id, {
+     authFetch('/videos/' + id, {
         method: 'DELETE'
     })
     .then(response => {
         if (response.ok) {
             alert('Video delete successfully!');
+            populateVideoData();
         } else {
             alert('Error delete video.');
         }
@@ -71,11 +78,9 @@ function takeSnapshot() {
 }
 
 function compressImage(canvas, maxWidth, maxHeight, quality) {
-    // Create a temporary canvas for compression
     const tempCanvas = document.createElement('canvas');
     const ctx = tempCanvas.getContext('2d');
     
-    // Calculate new dimensions maintaining aspect ratio
     let width = canvas.width;
     let height = canvas.height;
     
@@ -87,11 +92,7 @@ function compressImage(canvas, maxWidth, maxHeight, quality) {
     
     tempCanvas.width = width;
     tempCanvas.height = height;
-    
-    // Draw the image scaled down
     ctx.drawImage(canvas, 0, 0, width, height);
-    
-    // Convert to JPEG with compression (JPEG is much smaller than PNG)
     return tempCanvas.toDataURL('image/jpeg', quality);
 }
 
@@ -103,12 +104,7 @@ function saveVideoDetails() {
 
     let snapshot;
     try {
-        // Compress the image: max 320x240, quality 0.7 (70%)
-        // This should result in a much smaller file size (< 36KB)
         snapshot = compressImage(canvas, 320, 240, 0.7);
-        
-        // Check if still too large (base64 is ~33% larger than binary)
-        // If snapshot is still > 30KB in base64, compress more aggressively
         if (snapshot.length > 30000) {
             snapshot = compressImage(canvas, 240, 180, 0.6);
         }
@@ -123,7 +119,7 @@ function saveVideoDetails() {
         throw error;
     }
 
-    fetch('/savevideodetails', {
+    authFetch('/savevideodetails', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -148,8 +144,11 @@ function populateVideoData() {
     const videoTableBody = document.querySelector('#videoTable tbody');
     videoTableBody.innerHTML = '';
 
-    fetch('/videos')
-        .then(response => response.json())
+    authFetch('/videos')
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to load videos');
+            return response.json();
+        })
         .then(data => {
             data.forEach(video => {
                 const tr = document.createElement('tr');
@@ -167,12 +166,11 @@ function populateVideoData() {
                     document.getElementById('url').value = video.url || '';
                     document.getElementById('title').value = video.title || '';
                     document.getElementById('videoSummary').value = video.summary || '';
-                    // Highlight selected row
                     Array.from(videoTableBody.children).forEach(row => row.classList.remove('bg-blue-100'));
                     tr.classList.add('bg-blue-100');
                 });
                 videoTableBody.appendChild(tr);
             });
-        });
+        })
+        .catch(err => console.error(err));
 }
-

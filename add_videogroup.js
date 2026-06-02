@@ -1,22 +1,33 @@
+function authFetch(url, options = {}) {
+    const headers = window.auth?.getAuthHeaders?.(options.headers || {}) || (options.headers || {});
+    return fetch(url, { ...options, headers });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     let videos = [];
     let existingVideoGroups = [];
 
-    // Fetch videos from server
-    fetch('/videos')
-        .then(response => response.json())
+    authFetch('/videos')
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to load videos');
+            return response.json();
+        })
         .then(data => {
             videos = data;
             populateVideoList(videos);
-        });
+        })
+        .catch(err => console.error(err));
 
-    // Fetch existing video groups from videos.json
-    fetch('/videolist')
-        .then(response => response.json())
+    authFetch('/videolist')
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to load video groups');
+            return response.json();
+        })
         .then(data => {
             existingVideoGroups = data;
             populateExistingVideoGroups(existingVideoGroups);
-        });
+        })
+        .catch(err => console.error(err));
 
     function populateVideoList(videos) {
         const selectVideosForm = document.getElementById('selectVideosForm');
@@ -42,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function populateExistingVideoGroups(videoGroups) {
         const existingVideoGroupsContainer = document.getElementById('existingVideoGroups');
-        existingVideoGroupsContainer.innerHTML = ''; // Clear existing groups
+        existingVideoGroupsContainer.innerHTML = '';
 
         videoGroups.forEach((group, index) => {
             const groupDiv = document.createElement('div');
@@ -57,14 +68,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.deleteVideoGroup = function(index) {
-        fetch('/deletevideogroup/' + index, {
+        authFetch('/deletevideogroup/' + index, {
             method: 'DELETE'
         })
         .then(response => {
             if (response.ok) {
                 alert('Video group deleted successfully!');
-                // Refresh video groups
-                fetch('videos.json')
+                authFetch('/videolist')
                     .then(response => response.json())
                     .then(data => {
                         existingVideoGroups = data;
@@ -94,8 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             videolist: selectedVideos
         };
 
-        // Send selected videos to server
-        fetch('/newvideogroup', {
+        authFetch('/newvideogroup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -105,12 +114,15 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => {
             if (response.ok) {
                 alert('Video group created successfully!');
+                authFetch('/videolist')
+                    .then(response => response.json())
+                    .then(data => {
+                        existingVideoGroups = data;
+                        populateExistingVideoGroups(existingVideoGroups);
+                    });
             } else {
                 alert('Error creating video group.');
             }
         });
     }
 });
-
-
-
