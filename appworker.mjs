@@ -496,13 +496,24 @@ export default {
         );
       }
 
-      // 其余视频/存储 API 需要登录
-      const authUser = await getAuthenticatedUser(request) || true;
-      if (!authUser) {
-        throw new HttpError("Unauthorized. Please sign in.", 401);
+      // 存储 / denoenv 端点无需登录
+      const isPublicStorageOrEnv =
+        pathname.startsWith("/denoenv/") ||
+        (request.method === "GET" && pathname === "/mockdata") ||
+        (request.method === "POST" && (pathname === "/postselecteddata" || pathname === "/saveselecteddata"));
+
+      if (isPublicStorageOrEnv) {
+        if (!pathname.startsWith("/denoenv/")) {
+          await loadStorages();
+        }
+      } else {
+        const authUser = await getAuthenticatedUser(request);
+        if (!authUser) {
+          throw new HttpError("Unauthorized. Please sign in.", 401);
+        }
+        await loadVideos(authUser.username);
+        await loadStorages();
       }
-      await loadVideos(authUser.username);
-      await loadStorages();
 
       // 根据请求方法和路径进行路由
       switch (true) {

@@ -1,21 +1,12 @@
-function authFetch(url, options = {}) {
-    const headers = window.auth?.getAuthHeaders?.(options.headers || {}) || (options.headers || {});
-    return fetch(url, { ...options, headers });
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     let data = [];
 
-    authFetch('/mockdata')
-        .then(response => {
-            if (!response.ok) throw new Error('Failed to load storage data');
-            return response.json();
-        })
+    fetch('/mockdata')
+        .then(response => response.json())
         .then(mockData => {
             data = mockData;
             populateDataList(data);
-        })
-        .catch(err => console.error(err));
+        });
 
     function populateDataList(data) {
         const dataList = document.getElementById('dataList');
@@ -34,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.postSelectedData = function() {
         const selectedData = getSelectedData();
 
-        authFetch('/postselecteddata', {
+        fetch('/postselecteddata', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -53,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.saveSelectedData = function() {
         const selectedData = getSelectedData();
 
-        authFetch('/saveselecteddata', {
+        fetch('/saveselecteddata', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

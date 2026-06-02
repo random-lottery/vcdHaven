@@ -6,8 +6,7 @@ let authToken = null;
 const PROTECTED_PAGES = [
     'management.html',
     'move_video.html',
-    'add_videogroup.html',
-    'storage_manager.html'
+    'add_videogroup.html'
 ];
 
 function isProtectedPage() {
@@ -338,8 +337,7 @@ function updateUI() {
     const managementNavSelectors = [
         'a[href="management.html"]',
         'a[href="add_videogroup.html"]',
-        'a[href="move_video.html"]',
-        'a[href="storage_manager.html"]'
+        'a[href="move_video.html"]'
     ];
 
     if (currentUser && authToken) {
