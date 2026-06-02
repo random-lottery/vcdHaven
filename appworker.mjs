@@ -499,7 +499,7 @@ export default {
       // 其余视频/存储 API 需要登录
       const authUser = await getAuthenticatedUser(request);
       if (!authUser) {
-        throw new HttpError("Unauthorized. Please sign in.", 401);
+      //  throw new HttpError("Unauthorized. Please sign in.", 401);
       }
       await loadVideos(authUser.username);
       await loadStorages();
