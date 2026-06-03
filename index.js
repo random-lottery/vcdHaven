@@ -5,7 +5,10 @@
         const prevBtn = document.querySelector('.prev');
         const nextBtn = document.querySelector('.next');
         const iframe = document.querySelector('iframe');
-        iframe.style.height = window.innerHeight * 0.7 + 'px';
+        if (iframe && !iframe.classList.contains('aspect-video')) {
+            const vh = window.innerWidth < 768 ? Math.min(window.innerHeight * 0.4, 280) : window.innerHeight * 0.7;
+            iframe.style.height = vh + 'px';
+        }
         let currentIndex = 0;
         let interval;
         let videos = [];
@@ -137,12 +140,6 @@
         nextBtn.addEventListener('click',  () => {
             currentIndex = (currentIndex + 1) % items.length; 
             updateSlide();
-        });
-
-        // 移动端菜单切换功能
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
         });
 
         // 初始化 
