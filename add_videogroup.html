@@ -3,111 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Video Group</title>
+    <title>添加视频组 - VCDHaven</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 min-h-screen">
     <nav class="bg-gray-800 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-white font-bold text-xl">VCDHaven</span>
+                    <a href="index.html" class="text-white font-bold text-xl">VCDHaven</a>
                 </div>
-                <div class="hidden md:flex md:items-center md:space-x-4">
-                    <a href="videopage.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-play-circle mr-2"></i>播放视频
-                    </a>
-                    <a href="management.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-th-list mr-2"></i>管理视频
-                    </a>
-                    <a href="add_videogroup.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-plus-circle mr-2"></i>添加视频组
-                    </a>
-                    <a href="move_video.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-arrows mr-2"></i>移动视频
-                    </a>
-                    <a href="storage_manager.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-hdd mr-2"></i>存储管理
-                    </a>
-                    <a href="clock24.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-clock-four mr-2"></i>全球时区时钟
-                    </a>
-                    <!-- User Authentication Section -->
-                    <div id="user-auth-section" class="flex items-center space-x-2">
+                <div class="hidden md:flex md:items-center md:space-x-1 lg:space-x-4">
+                    <a href="videopage.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition"><i class="fa fa-play-circle mr-1"></i>播放视频</a>
+                    <a href="management.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition"><i class="fa fa-th-list mr-1"></i>管理视频</a>
+                    <a href="add_videogroup.html" class="text-white bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"><i class="fa fa-plus-circle mr-1"></i>添加视频组</a>
+                    <a href="move_video.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition"><i class="fa fa-arrows mr-1"></i>移动视频</a>
+                    <a href="storage_manager.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition"><i class="fa fa-hdd mr-1"></i>存储管理</a>
+                    <a href="clock24.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition"><i class="fa fa-clock-four mr-1"></i>全球时区时钟</a>
+                    <div id="user-auth-section" class="flex items-center space-x-2 ml-2 pl-2 border-l border-gray-600">
                         <span id="user-name" class="text-gray-300 text-sm hidden"></span>
-                        <a href="dashboard.html" id="dashboard-link" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out hidden">
-                            <i class="fa fa-user-circle mr-2"></i>仪表板
-                        </a>
-                        </button>
+                        <a href="dashboard.html" id="dashboard-link" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hidden"><i class="fa fa-user-circle mr-1"></i>仪表板</a>
+                        <button type="button" id="signin-btn" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"><i class="fa fa-sign-in-alt mr-1"></i>登录</button>
+                        <button type="button" id="signup-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium"><i class="fa fa-user-plus mr-1"></i>注册</button>
+                        <button type="button" id="signout-btn" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hidden"><i class="fa fa-sign-out-alt mr-1"></i>退出</button>
                     </div>
                 </div>
                 <div class="md:hidden flex items-center">
-                    <button type="button" class="text-gray-300 hover:text-white focus:outline-none" id="mobile-menu-button">
-                        <i class="fa fa-bars text-xl"></i>
-                    </button>
+                    <button type="button" class="text-gray-300 hover:text-white min-w-[44px] min-h-[44px] flex items-center justify-center" id="mobile-menu-button" aria-label="打开菜单"><i class="fa fa-bars text-xl"></i></button>
                 </div>
             </div>
         </div>
-    
         <div class="hidden md:hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="videopage.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-play-circle mr-2"></i>播放视频
-                </a>
-                <a href="management.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-th-list mr-2"></i>管理视频
-                </a>
-                <a href="add_videogroup.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-plus-circle mr-2"></i>添加视频组
-                </a>
-                <a href="move_video.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-arrows mr-2"></i>移动视频
-                </a>
-                <a href="storage_manager.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-hdd mr-2"></i>存储管理
-                </a>
-                <a href="clock24.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-clock-four mr-2"></i>全球时区时钟
-                </a>
-                <!-- Mobile User Authentication Section -->
+                <a href="videopage.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-play-circle mr-2"></i>播放视频</a>
+                <a href="management.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-th-list mr-2"></i>管理视频</a>
+                <a href="add_videogroup.html" class="text-white bg-gray-700 block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-plus-circle mr-2"></i>添加视频组</a>
+                <a href="move_video.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-arrows mr-2"></i>移动视频</a>
+                <a href="storage_manager.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-hdd mr-2"></i>存储管理</a>
+                <a href="clock24.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-clock-four mr-2"></i>全球时区时钟</a>
                 <div id="mobile-user-auth" class="border-t border-gray-700 pt-2 mt-2">
-                    <a href="dashboard.html" id="mobile-dashboard-link" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium hidden">
-                        <i class="fa fa-user-circle mr-2"></i>仪表板
-                    </a>
+                    <a href="dashboard.html" id="mobile-dashboard-link" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium hidden"><i class="fa fa-user-circle mr-2"></i>仪表板</a>
                 </div>
             </div>
         </div>
     </nav>
-    <div class="max-w-7xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Add Video Group</h1>
 
-    <h2>Existing Video Groups</h2>
-    <div id="existingVideoGroups">
-        <!-- Existing video groups will be dynamically added here -->
-    </div>
+    <main class="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800"><i class="fa fa-plus-circle mr-2 text-blue-600"></i>添加视频组</h1>
+            <p class="text-gray-500 mt-1 text-sm">创建新的视频组并选择要包含的视频</p>
+        </div>
 
-    <h2>Select Videos for New Group</h2>
-    <form id="selectVideosForm">
-        <!-- Videos will be dynamically added here -->
-    </form>
+        <section class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fa fa-folder mr-2 text-gray-400"></i>已有视频组
+            </h2>
+            <div id="existingVideoGroups" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+        </section>
 
-    <h2>New Video Group Details</h2>
-    <form id="newVideoGroupForm">
-        <label for="videoname">Video Group Name:</label>
-        <input type="text" id="videoname" name="videoname"><br><br>
+        <section class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fa fa-check-square mr-2 text-gray-400"></i>选择视频
+            </h2>
+            <p class="text-sm text-gray-500 mb-3">勾选要加入新视频组的视频：</p>
+            <form id="selectVideosForm" class="space-y-2 max-h-48 overflow-y-auto rounded-lg border border-gray-200 p-4 bg-gray-50"></form>
+        </section>
 
-        <label for="videointro">Video Group Intro:</label>
-        <textarea id="videointro" name="videointro" rows="4" cols="50"></textarea><br><br>
+        <section class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fa fa-info-circle mr-2 text-gray-400"></i>新视频组信息
+            </h2>
+            <form id="newVideoGroupForm" class="space-y-4">
+                <div>
+                    <label for="videoname" class="block text-sm font-medium text-gray-700 mb-1">视频组名称</label>
+                    <input type="text" id="videoname" name="videoname" placeholder="例如：精选合集" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="videointro" class="block text-sm font-medium text-gray-700 mb-1">视频组简介</label>
+                    <textarea id="videointro" name="videointro" rows="3" placeholder="简要介绍该视频组..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div>
+                    <label for="videopicture" class="block text-sm font-medium text-gray-700 mb-1">封面图片 URL</label>
+                    <input type="text" id="videopicture" name="videopicture" placeholder="https://..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </form>
+            <button type="button" onclick="submitSelectedVideos()" class="mt-6 inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg text-base font-medium shadow-md transition min-h-[48px]">
+                <i class="fa fa-check mr-2"></i>创建视频组
+            </button>
+        </section>
+    </main>
 
-        <label for="videopicture">Video Group Picture:</label>
-        <input type="text" id="videopicture" name="videopicture"><br><br>
-    </form>
-
-    <button type="button" onclick="submitSelectedVideos()">Create Video Group</button>
-
-    </div>
     <script src="auth.js"></script>
     <script src="add_videogroup.js"></script>
 </body>

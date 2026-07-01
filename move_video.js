@@ -50,17 +50,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (videoGroups[sourceGroupIndex] && videoGroups[sourceGroupIndex].videolist) {
             videoGroups[sourceGroupIndex].videolist.forEach(video => {
                 const listItem = document.createElement('li');
-                listItem.innerHTML = `<input type="checkbox" value="${video.id}"> ${video.title}`;
+                listItem.className = 'flex items-center gap-2 p-2 rounded-md hover:bg-white text-sm';
+                listItem.innerHTML = `<input type="checkbox" value="${video.id}" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"> <span>${video.title || '未命名'}</span>`;
                 sourceVideoList.appendChild(listItem);
             });
+        } else {
+            sourceVideoList.innerHTML = '<li class="text-gray-400 text-sm p-2">暂无视频</li>';
         }
 
          if (videoGroups[destGroupIndex] && videoGroups[destGroupIndex].videolist) {
             videoGroups[destGroupIndex].videolist.forEach(video => {
                 const listItem = document.createElement('li');
-                listItem.textContent = video.title;
+                listItem.className = 'p-2 text-sm text-gray-700 rounded-md hover:bg-white';
+                listItem.textContent = video.title || '未命名';
                 destVideoList.appendChild(listItem);
             });
+        } else {
+            destVideoList.innerHTML = '<li class="text-gray-400 text-sm p-2">暂无视频</li>';
         }
     }
 
@@ -75,6 +81,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedVideos = Array.from(sourceVideoList.querySelectorAll('input[type="checkbox"]:checked'))
             .map(checkbox => parseInt(checkbox.value));
 
+        if (selectedVideos.length === 0) {
+            alert('请至少选择一个要移动的视频。');
+            return;
+        }
+
         authFetch('/movevideos', {
             method: 'POST',
             headers: {
@@ -88,10 +99,10 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (response.ok) {
-                alert('Videos moved successfully!');
+                alert('视频移动成功！');
                 location.reload();
             } else {
-                alert('Error moving videos.');
+                alert('移动视频失败。');
             }
         });
     }

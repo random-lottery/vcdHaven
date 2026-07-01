@@ -16,10 +16,10 @@ function addVideo() {
     })
     .then(response => {
         if (response.ok) {
-            alert('Video added successfully!');
+            alert('视频添加成功！');
             populateVideoData();
         } else {
-            alert('Error adding video.');
+            alert('添加视频失败。');
         }
     });
 }
@@ -29,7 +29,7 @@ function modifyVideo() {
     const title = document.getElementById('title').value;
     const id = document.getElementById('selectedVideoId').value;
     const summary = document.getElementById('videoSummary').value;
-    if (!id) { alert('Please select a video from the list.'); return; }
+    if (!id) { alert('请先从列表中选择一条视频。'); return; }
 
      authFetch('/videos/' + id, {
         method: 'PUT',
@@ -40,25 +40,25 @@ function modifyVideo() {
     })
     .then(response => {
         if (response.ok) {
-            alert('Video modify successfully!');
+            alert('视频修改成功！');
         } else {
-            alert('Error modify video.');
+            alert('修改视频失败。');
         }
     });
 }
 
 function deleteVideo() {
     const id = document.getElementById('selectedVideoId').value;
-    if (!id) { alert('Please select a video from the list.'); return; }
+    if (!id) { alert('请先从列表中选择一条视频。'); return; }
      authFetch('/videos/' + id, {
         method: 'DELETE'
     })
     .then(response => {
         if (response.ok) {
-            alert('Video delete successfully!');
+            alert('视频删除成功！');
             populateVideoData();
         } else {
-            alert('Error delete video.');
+            alert('删除视频失败。');
         }
     });
 }
@@ -113,7 +113,7 @@ function saveVideoDetails() {
         }
     } catch (error) {
         if (error.name === 'SecurityError' || error.message.includes('Tainted canvases')) {
-            alert('Cannot export snapshot: Video is from a different origin and CORS is not properly configured. Please ensure the video server allows cross-origin requests.');
+            alert('无法导出快照：视频来自其他域名，请确保视频服务器已配置 CORS。');
             return;
         }
         throw error;
@@ -128,15 +128,15 @@ function saveVideoDetails() {
     })
     .then(response => {
         if (response.ok) {
-            alert('Video details saved successfully!');
+            alert('视频详情保存成功！');
         } else {
             response.text().then(text => {
-                alert('Error saving video details: ' + text);
+                alert('保存视频详情失败：' + text);
             });
         }
     })
     .catch(error => {
-        alert('Error saving video details: ' + error.message);
+        alert('保存视频详情失败：' + error.message);
     });
 }
 
@@ -153,13 +153,13 @@ function populateVideoData() {
             data.forEach(video => {
                 const tr = document.createElement('tr');
                 tr.className = 'cursor-pointer hover:bg-blue-50';
-                const snapshotSrc = video.snapshot ? video.snapshot : 'https://via.placeholder.com/64x36?text=No+Image';
+                const snapshotSrc = video.snapshot ? video.snapshot : 'https://via.placeholder.com/64x36?text=无图';
                 tr.innerHTML = `
-                    <td class=\"px-4 py-2\"><img src=\"${snapshotSrc}\" alt=\"snapshot\" class=\"w-16 h-9 object-cover rounded\"></td>
-                    <td class=\"px-4 py-2\">${video.id}</td>
-                    <td class=\"px-4 py-2\">${video.title || ''}</td>
-                    <td class=\"px-4 py-2\">${video.url || ''}</td>
-                    <td class=\"px-4 py-2\">${video.summary || ''}</td>
+                    <td class="px-3 sm:px-4 py-2"><img src="${snapshotSrc}" alt="缩略图" class="w-16 h-9 object-cover rounded"></td>
+                    <td class="px-3 sm:px-4 py-2">${video.id}</td>
+                    <td class="px-3 sm:px-4 py-2">${video.title || ''}</td>
+                    <td class="px-3 sm:px-4 py-2 hidden sm:table-cell truncate max-w-[200px]">${video.url || ''}</td>
+                    <td class="px-3 sm:px-4 py-2 hidden md:table-cell">${video.summary || ''}</td>
                 `;
                 tr.addEventListener('click', function() {
                     document.getElementById('selectedVideoId').value = video.id;

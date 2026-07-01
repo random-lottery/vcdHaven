@@ -31,23 +31,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function populateVideoList(videos) {
         const selectVideosForm = document.getElementById('selectVideosForm');
+        selectVideosForm.innerHTML = '';
+
+        if (!videos.length) {
+            selectVideosForm.innerHTML = '<p class="text-gray-400 text-sm">暂无可用视频</p>';
+            return;
+        }
 
         videos.forEach(video => {
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = video.id;
-            checkbox.name = 'selectedVideos';
-            checkbox.value = video.id;
-
-            const label = document.createElement('label');
-            label.htmlFor = video.id;
-            label.textContent = video.title;
-
-            const br = document.createElement('br');
-
-            selectVideosForm.appendChild(checkbox);
-            selectVideosForm.appendChild(label);
-            selectVideosForm.appendChild(br);
+            const row = document.createElement('label');
+            row.className = 'flex items-center gap-3 p-2 rounded-md hover:bg-white cursor-pointer text-sm';
+            row.innerHTML = `
+                <input type="checkbox" id="vid-${video.id}" name="selectedVideos" value="${video.id}" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <span>${video.title || '未命名'} <span class="text-gray-400">(ID: ${video.id})</span></span>`;
+            selectVideosForm.appendChild(row);
         });
     }
 
@@ -55,14 +52,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const existingVideoGroupsContainer = document.getElementById('existingVideoGroups');
         existingVideoGroupsContainer.innerHTML = '';
 
+        if (!videoGroups.length) {
+            existingVideoGroupsContainer.innerHTML = '<p class="text-gray-400 text-sm col-span-2">暂无视频组</p>';
+            return;
+        }
+
         videoGroups.forEach((group, index) => {
             const groupDiv = document.createElement('div');
+            groupDiv.className = 'border border-gray-200 rounded-lg p-4 bg-gray-50 hover:shadow-sm transition';
             groupDiv.innerHTML = `
-                <h3>${group.videoname}</h3>
-                <p>${group.videointro}</p>
-                <img src="${group.videopicture}" alt="${group.videoname}" width="100">
-                <button onclick="deleteVideoGroup(${index})">Delete</button>
-            `;
+                <h3 class="font-semibold text-gray-800 mb-1">${group.videoname || '未命名'}</h3>
+                <p class="text-sm text-gray-500 mb-3 line-clamp-2">${group.videointro || '暂无简介'}</p>
+                <img src="${group.videopicture || 'https://via.placeholder.com/100x60?text=无封面'}" alt="${group.videoname}" class="w-full h-24 object-cover rounded-md mb-3">
+                <p class="text-xs text-gray-400 mb-3">视频数量：${group.videocount ?? (group.videolist?.length || 0)}</p>
+                <button type="button" onclick="deleteVideoGroup(${index})" class="inline-flex items-center px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition">
+                    <i class="fa fa-trash mr-1"></i>删除
+                </button>`;
             existingVideoGroupsContainer.appendChild(groupDiv);
         });
     }
@@ -73,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (response.ok) {
-                alert('Video group deleted successfully!');
+                alert('视频组删除成功！');
                 authFetch('/videolist')
                     .then(response => response.json())
                     .then(data => {
@@ -81,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         populateExistingVideoGroups(existingVideoGroups);
                     });
             } else {
-                alert('Error deleting video group.');
+                alert('删除视频组失败。');
             }
         });
     }
@@ -113,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (response.ok) {
-                alert('Video group created successfully!');
+                alert('视频组创建成功！');
                 authFetch('/videolist')
                     .then(response => response.json())
                     .then(data => {
@@ -121,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         populateExistingVideoGroups(existingVideoGroups);
                     });
             } else {
-                alert('Error creating video group.');
+                alert('创建视频组失败。');
             }
         });
     }

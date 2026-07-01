@@ -3,142 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Management</title>
+    <title>视频管理 - VCDHaven</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 min-h-screen">
     <nav class="bg-gray-800 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-white font-bold text-xl">VCDHaven</span>
+                    <a href="index.html" class="text-white font-bold text-xl">VCDHaven</a>
                 </div>
-                <div class="hidden md:flex md:items-center md:space-x-4">
-                    <a href="videopage.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-play-circle mr-2"></i>播放视频
+                <div class="hidden md:flex md:items-center md:space-x-1 lg:space-x-4">
+                    <a href="videopage.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fa fa-play-circle mr-1"></i>播放视频
                     </a>
-                    <a href="management.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-th-list mr-2"></i>管理视频
+                    <a href="management.html" class="text-white bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fa fa-th-list mr-1"></i>管理视频
                     </a>
-                    <a href="add_videogroup.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-plus-circle mr-2"></i>添加视频组
+                    <a href="add_videogroup.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fa fa-plus-circle mr-1"></i>添加视频组
                     </a>
-                    <a href="move_video.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-arrows mr-2"></i>移动视频
+                    <a href="move_video.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fa fa-arrows mr-1"></i>移动视频
                     </a>
-                    <a href="storage_manager.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-hdd mr-2"></i>存储管理
+                    <a href="storage_manager.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fa fa-hdd mr-1"></i>存储管理
                     </a>
-                    <a href="clock24.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
-                        <i class="fa fa-clock-four mr-2"></i>全球时区时钟
+                    <a href="clock24.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fa fa-clock-four mr-1"></i>全球时区时钟
                     </a>
-                    <!-- User Authentication Section -->
-                    <div id="user-auth-section" class="flex items-center space-x-2">
+                    <div id="user-auth-section" class="flex items-center space-x-2 ml-2 pl-2 border-l border-gray-600">
                         <span id="user-name" class="text-gray-300 text-sm hidden"></span>
-                        <a href="dashboard.html" id="dashboard-link" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out hidden">
-                            <i class="fa fa-user-circle mr-2"></i>仪表板
+                        <a href="dashboard.html" id="dashboard-link" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hidden">
+                            <i class="fa fa-user-circle mr-1"></i>仪表板
                         </a>
+                        <button type="button" id="signin-btn" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fa fa-sign-in-alt mr-1"></i>登录
+                        </button>
+                        <button type="button" id="signup-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fa fa-user-plus mr-1"></i>注册
+                        </button>
+                        <button type="button" id="signout-btn" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hidden">
+                            <i class="fa fa-sign-out-alt mr-1"></i>退出
+                        </button>
                     </div>
                 </div>
                 <div class="md:hidden flex items-center">
-                    <button type="button" class="text-gray-300 hover:text-white focus:outline-none" id="mobile-menu-button">
+                    <button type="button" class="text-gray-300 hover:text-white min-w-[44px] min-h-[44px] flex items-center justify-center" id="mobile-menu-button" aria-label="打开菜单">
                         <i class="fa fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
         </div>
-    
         <div class="hidden md:hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="videopage.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-play-circle mr-2"></i>播放视频
-                </a>
-                <a href="management.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-th-list mr-2"></i>管理视频
-                </a>
-                <a href="add_videogroup.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-plus-circle mr-2"></i>添加视频组
-                </a>
-                <a href="move_video.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-arrows mr-2"></i>移动视频
-                </a>
-                <a href="storage_manager.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-hdd mr-2"></i>存储管理
-                </a>
-                <a href="clock24.html" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fa fa-clock-four mr-2"></i>全球时区时钟
-                </a>
-                <!-- Mobile User Authentication Section -->
+                <a href="videopage.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-play-circle mr-2"></i>播放视频</a>
+                <a href="management.html" class="text-white bg-gray-700 block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-th-list mr-2"></i>管理视频</a>
+                <a href="add_videogroup.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-plus-circle mr-2"></i>添加视频组</a>
+                <a href="move_video.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-arrows mr-2"></i>移动视频</a>
+                <a href="storage_manager.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-hdd mr-2"></i>存储管理</a>
+                <a href="clock24.html" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium"><i class="fa fa-clock-four mr-2"></i>全球时区时钟</a>
                 <div id="mobile-user-auth" class="border-t border-gray-700 pt-2 mt-2">
-                    <a href="dashboard.html" id="mobile-dashboard-link" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium hidden">
-                        <i class="fa fa-user-circle mr-2"></i>仪表板
-                    </a>
+                    <a href="dashboard.html" id="mobile-dashboard-link" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base font-medium hidden"><i class="fa fa-user-circle mr-2"></i>仪表板</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Video Management</h1>
-        
-        <div class="mb-8">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Video List</h2>
-            <div class="overflow-x-auto rounded-lg shadow">
-                <table id="videoTable" class="min-w-full divide-y divide-gray-200">
+    <main class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+        <div class="mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800"><i class="fa fa-th-list mr-2 text-blue-600"></i>视频管理</h1>
+            <p class="text-gray-500 mt-1 text-sm">添加、编辑、删除视频并保存快照</p>
+        </div>
+
+        <section class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fa fa-list mr-2 text-gray-400"></i>视频列表
+            </h2>
+            <p class="text-sm text-gray-500 mb-3">点击表格中的行以选中视频进行编辑</p>
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                <table id="videoTable" class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Snapshot</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Summary</th>
+                            <th class="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">缩略图</th>
+                            <th class="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                            <th class="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">标题</th>
+                            <th class="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">链接</th>
+                            <th class="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">简介</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <!-- Rows will be dynamically added here -->
-                    </tbody>
+                    <tbody class="bg-white divide-y divide-gray-200"></tbody>
                 </table>
             </div>
             <input type="hidden" id="selectedVideoId" />
-        </div>
+        </section>
 
-        <form id="videoForm" class="space-y-6">
-            <div>
-                <label for="url" class="block text-sm font-medium text-gray-700 mb-2">URL:</label>
-                <input type="text" id="url" name="url" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-            
-            <div>
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Title:</label>
-                <input type="text" id="title" name="title" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-            
-            <div>
-                <label for="videoSummary" class="block text-sm font-medium text-gray-700 mb-2">Summary:</label>
-                <textarea id="videoSummary" rows="4" cols="50" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
-            </div>
-            
-            <div class="flex space-x-4">
-                <button type="button" onclick="addVideo()" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">Add</button>
-                <button type="button" onclick="modifyVideo()" class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">Modify</button>
-                <button type="button" onclick="deleteVideo()" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">Delete</button>
-                <button type="button" onclick="saveVideoDetails()" class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">SaveSnapShot</button>
-            </div>
-        </form>
+        <section class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fa fa-edit mr-2 text-gray-400"></i>编辑视频
+            </h2>
+            <form id="videoForm" class="space-y-4">
+                <div>
+                    <label for="url" class="block text-sm font-medium text-gray-700 mb-1">视频链接</label>
+                    <input type="text" id="url" name="url" placeholder="https://..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                    <input type="text" id="title" name="title" placeholder="视频标题" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="videoSummary" class="block text-sm font-medium text-gray-700 mb-1">简介</label>
+                    <textarea id="videoSummary" rows="3" placeholder="视频简介..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="flex flex-wrap gap-2 sm:gap-3 pt-2">
+                    <button type="button" onclick="addVideo()" class="inline-flex items-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition min-h-[44px]">
+                        <i class="fa fa-plus mr-2"></i>添加
+                    </button>
+                    <button type="button" onclick="modifyVideo()" class="inline-flex items-center px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition min-h-[44px]">
+                        <i class="fa fa-pencil mr-2"></i>修改
+                    </button>
+                    <button type="button" onclick="deleteVideo()" class="inline-flex items-center px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition min-h-[44px]">
+                        <i class="fa fa-trash mr-2"></i>删除
+                    </button>
+                    <button type="button" onclick="saveVideoDetails()" class="inline-flex items-center px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition min-h-[44px]">
+                        <i class="fa fa-camera mr-2"></i>保存快照
+                    </button>
+                </div>
+            </form>
+        </section>
 
-        <div class="mt-8">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Video Preview</h2>
-            <video id="videoPreview" width="320" height="240" controls crossorigin="anonymous" class="border border-gray-300 rounded-lg"></video>
-            <button onclick="previewVideo()" class="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">Preview</button>
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fa fa-play-circle mr-2 text-purple-500"></i>视频预览
+                </h2>
+                <video id="videoPreview" width="320" height="240" controls crossorigin="anonymous" class="w-full max-w-sm rounded-lg border border-gray-200 bg-black"></video>
+                <button type="button" onclick="previewVideo()" class="mt-4 inline-flex items-center px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition min-h-[44px]">
+                    <i class="fa fa-eye mr-2"></i>预览
+                </button>
+            </section>
 
-        <div class="mt-8">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Snapshot</h2>
-            <canvas id="videoSnapshot" width="320" height="240" class="border border-gray-300 rounded-lg"></canvas>
-            <button onclick="takeSnapshot()" class="mt-4 px-6 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors">Take Snapshot</button>
+            <section class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fa fa-image mr-2 text-indigo-500"></i>快照
+                </h2>
+                <canvas id="videoSnapshot" width="320" height="240" class="w-full max-w-sm rounded-lg border border-gray-200 bg-gray-50"></canvas>
+                <button type="button" onclick="takeSnapshot()" class="mt-4 inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition min-h-[44px]">
+                    <i class="fa fa-camera mr-2"></i>截取快照
+                </button>
+            </section>
         </div>
-    </div>
+    </main>
 
     <script src="auth.js"></script>
     <script src="management.js"></script>
